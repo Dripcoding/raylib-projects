@@ -16,5 +16,8 @@ mouse_drag_draw_shape: mouse_drag_draw_shape.c
 basic_shapes: basic_shapes.c
 	$(CC) -o basic_shapes basic_shapes.c $(CFLAGS) $(LDFLAGS)
 
+circle_sector_gui: circle_sector_gui.c
+	$(CC) -o circle_sector_gui circle_sector_gui.c $(CFLAGS) $(LDFLAGS)
+
 clean:
-	rm -f basic_window bouncing_ball mouse_drag_draw_shape
+	rm -f basic_window bouncing_ball mouse_drag_draw_shape basic_shapes circle_sector_gui
