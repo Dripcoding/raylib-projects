@@ -5,8 +5,9 @@ const Color BACKGROUND_COLOR = {230, 230, 250, 255};
 const Color RAIN_COLOR = {138, 43, 226, 255};
 const int SCREEN_WIDTH = 800;
 const int SCREEN_HEIGHT = 1000;
+const int RAIN_DROP_COUNT = 120;
 const Vector2 RAIN_DROP_VEL = {0, 5};
-const int RAIN_DROP_WIDTH = 15;
+const int RAIN_DROP_WIDTH = 7;
 const int RAIN_DROP_HEIGHT = 50;
 
 typedef struct {
@@ -22,9 +23,9 @@ int main(void) {
 
   InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Purple Rain");
 
-  RainDrop rainDrops[100];
+  RainDrop rainDrops[RAIN_DROP_COUNT];
 
-  for (int i = 0; i < 100; i++) {
+  for (int i = 0; i < RAIN_DROP_COUNT; i++) {
     Vector2 position = {GetRandomValue(10, SCREEN_WIDTH - 10),
                         GetRandomValue(10, SCREEN_HEIGHT / 10)};
     rainDrops[i].pos = position;
@@ -36,8 +37,8 @@ int main(void) {
   // ===== MAIN LOOP =====
   while (!WindowShouldClose()) {
     // ===== UPDATE =====
-    for (int i = 0; i < 100; i++) {
-      rainDrops[i].pos.y += RAIN_DROP_VEL.y;
+    for (int i = 0; i < RAIN_DROP_COUNT; i++) {
+      rainDrops[i].pos.y += GetRandomValue(RAIN_DROP_VEL.y, 10);
     }
 
     // ===== BEGIN DRAWING =====
@@ -45,7 +46,7 @@ int main(void) {
 
     ClearBackground(GRAY);
 
-    for (int i = 0; i < 100; i++) {
+    for (int i = 0; i < RAIN_DROP_COUNT; i++) {
       int x = rainDrops[i].pos.x;
       int y = rainDrops[i].pos.y;
       int width = rainDrops[i].width;
