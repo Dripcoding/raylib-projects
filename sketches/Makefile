@@ -2,8 +2,6 @@ CC := gcc
 CFLAGS := -I/usr/local/include
 LDFLAGS := -L/usr/local/lib -Wl,-rpath,/usr/local/lib -lraylib -lGL -lm -lpthread -ldl -lrt -lX11
 
-all: basic_window
-
 basic_window: basic_window.c
 	$(CC) -o basic_window basic_window.c $(CFLAGS) $(LDFLAGS)
 
