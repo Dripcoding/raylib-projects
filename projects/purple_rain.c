@@ -1,5 +1,5 @@
 #include "raylib.h"
-#include <complex.h>
+#include "stdio.h"
 
 const Color BACKGROUND_COLOR = {230, 230, 250, 255};
 const Color RAIN_COLOR = {138, 43, 226, 255};
@@ -28,16 +28,21 @@ int main(void) {
   for (int i = 0; i < RAIN_DROP_COUNT; i++) {
     Vector2 position = {GetRandomValue(10, SCREEN_WIDTH - 10),
                         GetRandomValue(10, SCREEN_HEIGHT / 10)};
-    rainDrops[i].pos = position;
-    rainDrops[i].vel = RAIN_DROP_VEL;
-    rainDrops[i].width = RAIN_DROP_WIDTH;
-    rainDrops[i].height = RAIN_DROP_HEIGHT;
+    RainDrop rainDrop = {position, RAIN_DROP_VEL, RAIN_DROP_WIDTH,
+                         RAIN_DROP_HEIGHT};
+    rainDrops[i] = rainDrop;
   }
 
   // ===== MAIN LOOP =====
   while (!WindowShouldClose()) {
     // ===== UPDATE =====
+    // todo: impl gravity so drops don't fall at a constant rate
+
     for (int i = 0; i < RAIN_DROP_COUNT; i++) {
+      if (rainDrops[i].pos.y >= SCREEN_HEIGHT) {
+        rainDrops[i].pos.y = GetRandomValue(10, SCREEN_HEIGHT / 10);
+      }
+
       rainDrops[i].pos.y += GetRandomValue(RAIN_DROP_VEL.y, 10);
     }
 
@@ -51,6 +56,9 @@ int main(void) {
       int y = rainDrops[i].pos.y;
       int width = rainDrops[i].width;
       int height = rainDrops[i].height;
+
+      // todo: randomize the length of the rain drop
+      // todo: add depth to the scene (stroke weight, size of rain drops, etc)
 
       DrawRectangle(x, y, width, height, RAIN_COLOR);
     }
