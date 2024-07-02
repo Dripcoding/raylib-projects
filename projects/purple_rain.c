@@ -28,8 +28,9 @@ int main(void) {
   for (int i = 0; i < RAIN_DROP_COUNT; i++) {
     Vector2 position = {GetRandomValue(10, SCREEN_WIDTH - 10),
                         GetRandomValue(10, SCREEN_HEIGHT / 10)};
-    RainDrop rainDrop = {position, RAIN_DROP_VEL, RAIN_DROP_WIDTH,
-                         RAIN_DROP_HEIGHT};
+    RainDrop rainDrop = {
+        position, RAIN_DROP_VEL, RAIN_DROP_WIDTH,
+        GetRandomValue(RAIN_DROP_HEIGHT, RAIN_DROP_HEIGHT * 1.75)};
     rainDrops[i] = rainDrop;
   }
 
@@ -57,7 +58,6 @@ int main(void) {
       int width = rainDrops[i].width;
       int height = rainDrops[i].height;
 
-      // todo: randomize the length of the rain drop
       // todo: add depth to the scene (stroke weight, size of rain drops, etc)
 
       DrawRectangle(x, y, width, height, RAIN_COLOR);
