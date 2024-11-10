@@ -1,7 +1,7 @@
 #include "raylib.h"
 #include "stdio.h"
 
-const Color BACKGROUND_COLOR = {230, 230, 250, 255};
+const Color BACKGROUND_COLOR = {230, 230, 250};
 const Color RAIN_COLOR = {138, 43, 226, 255};
 const int SCREEN_WIDTH = 800;
 const int SCREEN_HEIGHT = 1000;
@@ -18,6 +18,10 @@ typedef struct {
   int depth;
 } RainDrop;
 
+int map(int value, int start1, int stop1, int start2, int stop2) {
+    return start2 + (value - start1) * (stop2 - start2) / (stop1 - start1);
+}
+
 int main(void) {
   // ===== INITIALIZATION =====
   SetTargetFPS(30);
@@ -32,7 +36,8 @@ int main(void) {
                         GetRandomValue(1, SCREEN_HEIGHT)};
     RainDrop rainDrop = {
         position, RAIN_DROP_VEL, RAIN_DROP_WIDTH,
-        GetRandomValue(RAIN_DROP_HEIGHT, RAIN_DROP_HEIGHT * 1.75)};
+        GetRandomValue(RAIN_DROP_HEIGHT, RAIN_DROP_HEIGHT * 1.75),
+        GetRandomValue(0, 20)};
     rainDrops[i] = rainDrop;
   }
 
@@ -54,7 +59,7 @@ int main(void) {
     // ===== BEGIN DRAWING =====
     BeginDrawing();
 
-    ClearBackground(GRAY);
+    ClearBackground(BACKGROUND_COLOR);
 
     for (int i = 0; i < RAIN_DROP_COUNT; i++) {
       int x = rainDrops[i].pos.x;
