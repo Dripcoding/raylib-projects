@@ -16,6 +16,7 @@ typedef struct {
   int width;
   int height;
   int depth;
+  Color color;
 } RainDrop;
 
 int map(int value, int start1, int stop1, int start2, int stop2) {
@@ -37,13 +38,14 @@ int main(void) {
     RainDrop rainDrop = {
         position, RAIN_DROP_VEL, RAIN_DROP_WIDTH,
         GetRandomValue(RAIN_DROP_HEIGHT, RAIN_DROP_HEIGHT * 1.75),
-        GetRandomValue(0, 20)};
+        GetRandomValue(0, 20), 
+        RAIN_COLOR
+    };
     rainDrops[i] = rainDrop;
   }
 
   // ===== MAIN LOOP =====
   while (!WindowShouldClose()) {
-    Color color = RAIN_COLOR;
     // ===== UPDATE =====
     // todo: impl gravity so drops don't fall at a constant rate
 
@@ -53,7 +55,11 @@ int main(void) {
         rainDrops[i].pos.y = GetRandomValue(1, SCREEN_HEIGHT / 4);
       }
 
-      rainDrops[i].pos.y += GetRandomValue(RAIN_DROP_VEL.y, 10);
+      if (rainDrops[i].depth > 0 && rainDrops[i].depth <= 10) {
+        rainDrops[i].pos.y += GetRandomValue(RAIN_DROP_VEL.y, 25);
+      } else {
+        rainDrops[i].pos.y += GetRandomValue(25, 50);
+      }
     }
 
     // ===== BEGIN DRAWING =====
@@ -69,7 +75,7 @@ int main(void) {
 
       // todo: add depth to the scene (stroke weight, size of rain drops, etc)
 
-      DrawRectangle(x, y, width, height, color);
+      DrawRectangle(x, y, width, height, rainDrops[i].color);
     }
 
     EndDrawing();
