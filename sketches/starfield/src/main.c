@@ -1,28 +1,37 @@
 #include "raylib.h"
+#include "raymath.h"
+#include <stdlib.h>
 
 const int SCREEN_WIDTH = 1920;
 const int SCREEN_HEIGHT = 1080;
-const int CENTER_X = SCREEN_WIDTH / 2;
-const int CENTER_Y = SCREEN_HEIGHT / 2;
+const float CENTER_X = SCREEN_WIDTH / 2;
+const float CENTER_Y = SCREEN_HEIGHT / 2;
 const int FPS = 60;
-const int STAR_COUNT = 100;
+const int STAR_COUNT = 500;
 
 typedef struct Star {
-  int x;
-  int y;
-  int z;
-} Star;
+  float x;
+  float y;
+  float z;
+};
 
-Star* initializeStars() {
-  Star* stars = malloc(STAR_COUNT * sizeof(Star));
+struct Star* initializeStars() {
+	struct Star* stars = malloc(STAR_COUNT * sizeof(struct Star));
+	if (stars == NULL) {
+		return NULL; // Return NULL if memory allocation fails
+	}
 
-  for (int i = 0; i < STAR_COUNT; i++) {
-	stars[i].x = GetRandomValue(CENTER_X, SCREEN_WIDTH);
-	stars[i].y = GetRandomValue(CENTER_Y, SCREEN_HEIGHT);
-	stars[i].z = SCREEN_WIDTH;
-  }
+	for (int i = 0; i < STAR_COUNT; i++) {
+		struct Star star = {
+			.x = GetRandomValue(0, SCREEN_WIDTH),
+			.y = GetRandomValue(0, SCREEN_HEIGHT),
+			.z = GetRandomValue(0, SCREEN_WIDTH)
+		};
 
-  return stars;
+		stars[i] = star;
+	}
+	
+	return stars;
 }
 
 // todo: star size depends on a z value, with closer stars being larger
@@ -30,27 +39,21 @@ Star* initializeStars() {
 int main(void) {
   // ===== INITIALIZATION START =====
   SetTargetFPS(60);
-
   InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Starfield");
-
-  Star* stars = initializeStars();
+  struct Star* stars = initializeStars();
 
   // ===== MAIN LOOP =====
   while (!WindowShouldClose()) {
 	// ==== UPDATE START ====
 	// todo: stars should move outward from the center of the screen with a given speed
 
-	float sx;
-	float sy;
-
 	for (int i = 0; i < STAR_COUNT; i++) {
-		if (stars[i].z != 0) {
-			stars[i].z = stars[i].z - 1;
-			// stars[i].x = stars[i].x + 5;
-			// stars[i].y = stars[i].y + 5;
-		}
-	}
+		stars[i].z -= 1; // simulation speed
 
+		// if (stars[i].z <= 0) {
+		// 	stars[i].z = SCREEN_WIDTH;
+		// }
+	}
 	// ==== UPDATE END ====
 
 	// ==== DRAW START ====
@@ -59,11 +62,12 @@ int main(void) {
 	ClearBackground(BLACK);
 
 	for (int i = 0; i < STAR_COUNT; i++) {
-		if (stars[i].z != 0) {
-			DrawCircle(stars[i].x, stars[i].y, 5, WHITE);
-		}
-	}
+		
+		float sx = Remap(stars[i].x / stars[i].z, 0, 1, 0, SCREEN_WIDTH);
+		float sy = Remap(stars[i].y / stars[i].z, 0, 1, 0, SCREEN_HEIGHT);
 
+		DrawCircle(sx, sy, 5, WHITE);
+	}
 	// ==== DRAW END ====
 
 	EndDrawing();
