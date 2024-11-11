@@ -8,6 +8,7 @@ const float CENTER_X = SCREEN_WIDTH / 2;
 const float CENTER_Y = SCREEN_HEIGHT / 2;
 const int FPS = 60;
 const int STAR_COUNT = 1000;
+const float SIMULATION_SPEED = 5;
 
 typedef struct Star {
   float x;
@@ -19,7 +20,8 @@ struct Star* initializeStars() {
 	struct Star* stars = malloc(STAR_COUNT * sizeof(struct Star));
 	if (stars == NULL) {
 		return NULL;
-
+	}
+	
 	for (int i = 0; i < STAR_COUNT; i++) {
 		struct Star star = {
 			.x = GetRandomValue(-CENTER_X, CENTER_X),
@@ -46,7 +48,7 @@ int main(void) {
 	// ==== UPDATE START ====
 
 	for (int i = 0; i < STAR_COUNT; i++) {
-		stars[i].z -= 5; // simulation speed
+		stars[i].z -= SIMULATION_SPEED;
 
 		if (stars[i].z < 1) {
 			stars[i].z = SCREEN_WIDTH;
