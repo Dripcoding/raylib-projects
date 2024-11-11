@@ -37,8 +37,6 @@ struct Star* initializeStars() {
 	return stars;
 }
 
-// todo: star size depends on a z value, with closer stars being larger
-
 int main(void) {
   // ===== INITIALIZATION START =====
   SetTargetFPS(60);
@@ -50,7 +48,7 @@ int main(void) {
 	// ==== UPDATE START ====
 
 	for (int i = 0; i < STAR_COUNT; i++) {
-		stars[i].z -= SIMULATION_SPEED;
+		stars[i].z -= Remap(GetMouseX(), 0, SCREEN_WIDTH, 0, 50);
 
 		if (stars[i].z < 1) {
 			stars[i].z = SCREEN_WIDTH;
