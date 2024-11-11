@@ -7,7 +7,7 @@ const int SCREEN_HEIGHT = 1080;
 const float CENTER_X = SCREEN_WIDTH / 2;
 const float CENTER_Y = SCREEN_HEIGHT / 2;
 const int FPS = 60;
-const int STAR_COUNT = 500;
+const int STAR_COUNT = 1000;
 
 typedef struct Star {
   float x;
@@ -18,13 +18,12 @@ typedef struct Star {
 struct Star* initializeStars() {
 	struct Star* stars = malloc(STAR_COUNT * sizeof(struct Star));
 	if (stars == NULL) {
-		return NULL; // Return NULL if memory allocation fails
-	}
+		return NULL;
 
 	for (int i = 0; i < STAR_COUNT; i++) {
 		struct Star star = {
-			.x = GetRandomValue(0, SCREEN_WIDTH),
-			.y = GetRandomValue(0, SCREEN_HEIGHT),
+			.x = GetRandomValue(-CENTER_X, CENTER_X),
+			.y = GetRandomValue(-CENTER_Y, CENTER_Y),
 			.z = GetRandomValue(0, SCREEN_WIDTH)
 		};
 
@@ -45,14 +44,15 @@ int main(void) {
   // ===== MAIN LOOP =====
   while (!WindowShouldClose()) {
 	// ==== UPDATE START ====
-	// todo: stars should move outward from the center of the screen with a given speed
 
 	for (int i = 0; i < STAR_COUNT; i++) {
-		stars[i].z -= 1; // simulation speed
+		stars[i].z -= 5; // simulation speed
 
-		// if (stars[i].z <= 0) {
-		// 	stars[i].z = SCREEN_WIDTH;
-		// }
+		if (stars[i].z < 1) {
+			stars[i].z = SCREEN_WIDTH;
+			stars[i].x = GetRandomValue(-CENTER_X, CENTER_X);
+			stars[i].y = GetRandomValue(-CENTER_Y, CENTER_Y);
+		}
 	}
 	// ==== UPDATE END ====
 
@@ -62,9 +62,9 @@ int main(void) {
 	ClearBackground(BLACK);
 
 	for (int i = 0; i < STAR_COUNT; i++) {
-		
-		float sx = Remap(stars[i].x / stars[i].z, 0, 1, 0, SCREEN_WIDTH);
-		float sy = Remap(stars[i].y / stars[i].z, 0, 1, 0, SCREEN_HEIGHT);
+		// calculate the star x,y positioned around the center of the screen and not the top,left
+		float sx = Remap(stars[i].x / stars[i].z, 0, 1, 0, SCREEN_WIDTH) + CENTER_X;
+		float sy = Remap(stars[i].y / stars[i].z, 0, 1, 0, SCREEN_HEIGHT) + CENTER_Y;
 
 		DrawCircle(sx, sy, 5, WHITE);
 	}
