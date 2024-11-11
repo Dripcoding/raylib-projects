@@ -19,10 +19,6 @@ typedef struct {
   Color color;
 } RainDrop;
 
-int map(int value, int start1, int stop1, int start2, int stop2) {
-    return start2 + (value - start1) * (stop2 - start2) / (stop1 - start1);
-}
-
 int main(void) {
   // ===== INITIALIZATION =====
   SetTargetFPS(30);
@@ -41,25 +37,32 @@ int main(void) {
         GetRandomValue(0, 20), 
         RAIN_COLOR
     };
+
     rainDrops[i] = rainDrop;
+
+    // rain drops that are further away from the viewer fall slower and are thinner
+    // rain drops that are closer to the viewer fall faster and are thicker
+    if (rainDrops[i].depth > 0 && rainDrops[i].depth <= 5) {
+      rainDrops[i].pos.y += GetRandomValue(RAIN_DROP_VEL.y, 25);
+      rainDrops[i].width = GetRandomValue(1, 3);
+    }
+    else {
+      rainDrops[i].pos.y += GetRandomValue(25, 50);
+      rainDrops[i].width = GetRandomValue(3, 7);
+    }
+
   }
 
   // ===== MAIN LOOP =====
   while (!WindowShouldClose()) {
     // ===== UPDATE =====
-    // todo: impl gravity so drops don't fall at a constant rate
-
     for (int i = 0; i < RAIN_DROP_COUNT; i++) {
       // reset rain drop y position once it reaches the bottom of the screen
       if (rainDrops[i].pos.y >= SCREEN_HEIGHT) {
         rainDrops[i].pos.y = GetRandomValue(1, SCREEN_HEIGHT / 4);
       }
 
-      if (rainDrops[i].depth > 0 && rainDrops[i].depth <= 10) {
-        rainDrops[i].pos.y += GetRandomValue(RAIN_DROP_VEL.y, 25);
-      } else {
-        rainDrops[i].pos.y += GetRandomValue(25, 50);
-      }
+      rainDrops[i].pos.y += rainDrops[i].vel.y;
     }
 
     // ===== BEGIN DRAWING =====
@@ -72,8 +75,6 @@ int main(void) {
       int y = rainDrops[i].pos.y;
       int width = rainDrops[i].width;
       int height = rainDrops[i].height;
-
-      // todo: add depth to the scene (stroke weight, size of rain drops, etc)
 
       DrawRectangle(x, y, width, height, rainDrops[i].color);
     }
