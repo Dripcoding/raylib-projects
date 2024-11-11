@@ -9,6 +9,8 @@ const float CENTER_Y = SCREEN_HEIGHT / 2;
 const int FPS = 60;
 const int STAR_COUNT = 1000;
 const float SIMULATION_SPEED = 5;
+const float MAX_RADIUS = 16;
+const float MIN_RADIUS = 0;
 
 typedef struct Star {
   float x;
@@ -68,7 +70,10 @@ int main(void) {
 		float sx = Remap(stars[i].x / stars[i].z, 0, 1, 0, SCREEN_WIDTH) + CENTER_X;
 		float sy = Remap(stars[i].y / stars[i].z, 0, 1, 0, SCREEN_HEIGHT) + CENTER_Y;
 
-		DrawCircle(sx, sy, 5, WHITE);
+		// stars should grow in size as they get closer
+		float radius = Remap(stars[i].z, 0, SCREEN_WIDTH, MAX_RADIUS, MIN_RADIUS);
+
+		DrawCircle(sx, sy, radius, WHITE);
 	}
 	// ==== DRAW END ====
 
