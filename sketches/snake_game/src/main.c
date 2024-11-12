@@ -3,10 +3,8 @@
 
 const int SCREEN_WIDTH = 1920;
 const int SCREEN_HEIGHT = 1080;
+const int SNAKE_SPEED = 5;
 
-// todo: create and initialize the snake with 1 segment
-// todo: create and initialize the food (1 to start with)
-// todo: use keyboard controls to move the snake and change direction
 // todo: detect collision between the snake and the food
 // todo: detect collision between the snake and the screen
 // todo: create and initialize the score
@@ -25,6 +23,16 @@ typedef struct Food {
 	Color color;
 };
 
+void updateSnake(struct Snake* snake) {
+	int key = GetKeyPressed();
+
+	// snake movement with arrow keys
+	if (IsKeyDown(KEY_RIGHT)) snake -> position.x += snake -> speed.x;
+	if (IsKeyDown(KEY_LEFT)) snake -> position.x -= snake -> speed.x;
+	if (IsKeyDown(KEY_UP)) snake -> position.y -= snake -> speed.y;
+	if (IsKeyDown(KEY_DOWN)) snake -> position.y += snake -> speed.y;
+}
+
 int main(void) {
 	// ===== INITIALIZATION START =====
 	SetTargetFPS(60);
@@ -33,7 +41,7 @@ int main(void) {
 	struct Snake snake = {
 		.position = {SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2},
 		.size = {20, 20},
-		.speed = {0, 0},
+		.speed = {SNAKE_SPEED, SNAKE_SPEED},
 		.color = MAROON,
 	};
 
@@ -47,6 +55,8 @@ int main(void) {
 	// ===== GAME LOOP START =====
 	while (!WindowShouldClose()) {
 		// ===== UPDATE START =====
+
+		updateSnake(&snake);
 
 		// ===== UPDATE END =====
 
