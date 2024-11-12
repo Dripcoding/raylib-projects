@@ -6,6 +6,7 @@ const int SCREEN_HEIGHT = 1080;
 
 // todo: create and initialize the snake with 1 segment
 // todo: create and initialize the food (1 to start with)
+// todo: use keyboard controls to move the snake and change direction
 // todo: detect collision between the snake and the food
 // todo: detect collision between the snake and the screen
 // todo: create and initialize the score
@@ -29,12 +30,17 @@ int main(void) {
 	SetTargetFPS(60);
   	InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Snake Game");
 
-	// initialize the snake
 	struct Snake snake = {
 		.position = {SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2},
 		.size = {20, 20},
 		.speed = {0, 0},
 		.color = MAROON,
+	};
+
+	struct Food food = {
+		.position = {GetRandomValue(0, SCREEN_WIDTH), GetRandomValue(0, SCREEN_HEIGHT)},
+		.size = {20, 20},
+		.color = GREEN,
 	};
 	// ===== INITIALIZATION END =====
 
@@ -49,8 +55,9 @@ int main(void) {
 
 		ClearBackground(BLACK);
 
-		// draw snake as a rectangle
 		DrawRectangleV(snake.position, snake.size, snake.color);		
+		DrawRectangleV(food.position, food.size, food.color);
+
 		EndDrawing();
 		// ===== DRAW END =====
 	}
