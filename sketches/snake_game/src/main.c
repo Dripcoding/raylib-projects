@@ -8,8 +8,6 @@ const int SCREEN_HEIGHT = 1080;
 const int SNAKE_SPEED = 5;
 const int SNAKE_SEGMENT_LENGTH = 5;
 
-// todo: detect collision between the snake and the food
-// todo: detect collision between the snake and the screen
 // todo: create and initialize the score
 // todo: create and initialize the game over message
 
@@ -41,6 +39,17 @@ void updateSnake(struct Snake* snake, struct Food* food) {
 	if (IsKeyDown(KEY_LEFT)) snake -> position.x -= snake -> speed.x;
 	if (IsKeyDown(KEY_UP)) snake -> position.y -= snake -> speed.y;
 	if (IsKeyDown(KEY_DOWN)) snake -> position.y += snake -> speed.y;
+
+	// detect collision between the snake and the screen borders
+	if (snake -> position.x >= SCREEN_WIDTH) {
+		printf("oops collided with right screen border\n");
+	} else if (snake -> position.x <= 0) {
+		printf("oops collided with left screen border\n");
+	} else if (snake -> position.y >= SCREEN_HEIGHT) {
+		printf("oops collided with bottom screen border\n");
+	} else if (snake -> position.y <= 0) {
+		printf("oops collided with top screen border\n");
+	}
 
 	// detect collision between the snake and the food
 	Rectangle snakeRect = {snake -> position.x, snake -> position.y, snake -> size.x, snake -> size.y};
