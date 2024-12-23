@@ -1,20 +1,30 @@
 #include "raylib.h"
+#include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 
 const int SCREEN_WIDTH = 1920;
 const int SCREEN_HEIGHT = 1080;
 const int SNAKE_SPEED = 5;
+const int SNAKE_SEGMENT_LENGTH = 5;
 
 // todo: detect collision between the snake and the food
 // todo: detect collision between the snake and the screen
 // todo: create and initialize the score
 // todo: create and initialize the game over message
 
+typedef struct SnakeSegment {
+	Vector2 position;
+	Vector2 size;
+	Color color;
+};
+
 typedef struct Snake {
 	Vector2 position;
 	Vector2 speed;
 	Vector2 size;
 	Color color;
+	struct SnakeSegment segments[5];
 };
 
 typedef struct Food {
@@ -23,7 +33,7 @@ typedef struct Food {
 	Color color;
 };
 
-void updateSnake(struct Snake* snake) {
+void updateSnake(struct Snake* snake, struct Food* food) {
 	int key = GetKeyPressed();
 
 	// snake movement with arrow keys
@@ -31,7 +41,23 @@ void updateSnake(struct Snake* snake) {
 	if (IsKeyDown(KEY_LEFT)) snake -> position.x -= snake -> speed.x;
 	if (IsKeyDown(KEY_UP)) snake -> position.y -= snake -> speed.y;
 	if (IsKeyDown(KEY_DOWN)) snake -> position.y += snake -> speed.y;
+
+	// detect collision between the snake and the food
+	Rectangle snakeRect = {snake -> position.x, snake -> position.y, snake -> size.x, snake -> size.y};
+	Rectangle foodRect = {food -> position.x, food -> position.y, food -> size.x, food -> size.y};
+	if (CheckCollisionRecs(snakeRect, foodRect) == true) {
+		printf("Collision detected\n");
+	}
+
+	// updateSnakeSegments(snake);
 }
+
+// void updateSnakeSegments(struct Snake* snake) {
+// 	for (int i = 0; i < SNAKE_SEGMENT_LENGTH; i++) {
+// 		snake -> segments[i].position.x = snake -> position.x + ((i + 1) * (snake -> size.x));
+// 		snake -> segments[i].position.y = snake -> position.y + ((i + 1) * (snake -> size.y));
+// 	}
+// }
 
 int main(void) {
 	// ===== INITIALIZATION START =====
@@ -43,6 +69,7 @@ int main(void) {
 		.size = {20, 20},
 		.speed = {SNAKE_SPEED, SNAKE_SPEED},
 		.color = MAROON,
+		.segments = {}
 	};
 
 	struct Food food = {
@@ -56,7 +83,7 @@ int main(void) {
 	while (!WindowShouldClose()) {
 		// ===== UPDATE START =====
 
-		updateSnake(&snake);
+		updateSnake(&snake, &food);
 
 		// ===== UPDATE END =====
 
@@ -67,6 +94,11 @@ int main(void) {
 
 		DrawRectangleV(snake.position, snake.size, snake.color);		
 		DrawRectangleV(food.position, food.size, food.color);
+
+		// draw snake segments
+		for (int i = 0; i < SNAKE_SEGMENT_LENGTH; i++) {
+			DrawRectangleV(snake.segments[i].position, snake.segments[i].size, snake.segments[i].color);
+		}
 
 		EndDrawing();
 		// ===== DRAW END =====
