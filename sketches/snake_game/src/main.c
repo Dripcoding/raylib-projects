@@ -125,6 +125,7 @@ int main(void) {
 		if (CheckCollisionRecs(snakeRect, foodRect) == true) {
 			printf("Collision detected\n");
 			score += 1;
+			food.position = (Vector2){GetRandomValue(0, SCREEN_WIDTH), GetRandomValue(0, SCREEN_HEIGHT)};
 		} else {
 			DrawRectangleV(food.position, food.size, food.color);
 		}
