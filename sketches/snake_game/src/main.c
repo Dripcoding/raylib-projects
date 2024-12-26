@@ -105,6 +105,28 @@ int main(void) {
 
 		ClearBackground(BLACK);
 
+		// draw score
+		int bufferSize = snprintf(NULL, 0, "Score: %d", score) + 1;
+
+		char *buffer = malloc(bufferSize * sizeof(char));
+		if (buffer == NULL) {
+			free(buffer);
+			printf("Error: malloc failed\n");
+			CloseWindow();
+		}
+
+		int result = snprintf(buffer, bufferSize "Score: %d", score);
+		if (result >= 0) {
+			DrawText(buffer, 10, 10, 20, LIGHTGRAY);
+		} else {
+			free(buffer);
+			CloseWindow()
+		}
+
+		DrawText("Score: %d", score, 10, 10, 20, LIGHTGRAY);
+
+		free(buffer)
+
 		DrawRectangleV(snake.position, snake.size, snake.color);		
 		DrawRectangleV(food.position, food.size, food.color);
 
