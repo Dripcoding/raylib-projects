@@ -31,7 +31,7 @@ typedef struct Food {
 	Color color;
 };
 
-void updateSnake(struct Snake* snake, struct Food* food, int* score) {
+void updateSnake(struct Snake* snake) {
 	int key = GetKeyPressed();
 
 	// snake movement with arrow keys
@@ -49,15 +49,6 @@ void updateSnake(struct Snake* snake, struct Food* food, int* score) {
 		printf("oops collided with bottom screen border\n");
 	} else if (snake -> position.y <= 0) {
 		printf("oops collided with top screen border\n");
-	}
-
-	// detect collision between the snake and the food
-	Rectangle snakeRect = {snake -> position.x, snake -> position.y, snake -> size.x, snake -> size.y};
-	Rectangle foodRect = {food -> position.x, food -> position.y, food -> size.x, food -> size.y};
-	if (CheckCollisionRecs(snakeRect, foodRect) == true) {
-		printf("Collision detected\n");
-		*score += 1;
-		printf("score is %d\n", *score);
 	}
 
 	// updateSnakeSegments(snake);
@@ -96,7 +87,7 @@ int main(void) {
 	while (!WindowShouldClose()) {
 		// ===== UPDATE START =====
 
-		updateSnake(&snake, &food, &score);
+		updateSnake(&snake);
 
 		// ===== UPDATE END =====
 
@@ -115,25 +106,36 @@ int main(void) {
 			CloseWindow();
 		}
 
-		int result = snprintf(buffer, bufferSize "Score: %d", score);
+		int result = snprintf(buffer, bufferSize, "Score: %d", score);
 		if (result >= 0) {
 			DrawText(buffer, 10, 10, 20, LIGHTGRAY);
 		} else {
 			free(buffer);
-			CloseWindow()
+			CloseWindow();
 		}
 
-		DrawText("Score: %d", score, 10, 10, 20, LIGHTGRAY);
+		free(buffer);
 
-		free(buffer)
-
-		DrawRectangleV(snake.position, snake.size, snake.color);		
-		DrawRectangleV(food.position, food.size, food.color);
+		DrawRectangleV(snake.position, snake.size, snake.color);	
+	
+		// detect collision between the snake and the food
+		Rectangle snakeRect = {snake.position.x, snake.position.y, snake.size.x, snake.size.y};
+		Rectangle foodRect = {food.position.x, food.position.y, food.size.x, food.size.y};
+		
+		if (CheckCollisionRecs(snakeRect, foodRect) == true) {
+			printf("Collision detected\n");
+			score += 1;
+		} else {
+			DrawRectangleV(food.position, food.size, food.color);
+		}
 
 		// draw snake segments
-		for (int i = 0; i < SNAKE_SEGMENT_LENGTH; i++) {
-			DrawRectangleV(snake.segments[i].position, snake.segments[i].size, snake.segments[i].color);
-		}
+		// snake.segments = realloc(snake.segments, score * sizeof(SnakeSegment));
+		// for (int i = 0; i < score; i++) {
+		// 	snake.segments[i].position = {snake.position.x - (20 * (i + 1)), snake.position.y - (20 * (i + 1))};
+		// 	snake.segments[i].size = {20, 20};
+		// 	snake.segments[i].color = MAROON;
+		// }
 
 		EndDrawing();
 		// ===== DRAW END =====
