@@ -31,7 +31,7 @@ typedef struct Food {
 	Color color;
 };
 
-void updateSnake(struct Snake* snake, struct Food* food) {
+void updateSnake(struct Snake* snake, struct Food* food, int* score) {
 	int key = GetKeyPressed();
 
 	// snake movement with arrow keys
@@ -56,6 +56,8 @@ void updateSnake(struct Snake* snake, struct Food* food) {
 	Rectangle foodRect = {food -> position.x, food -> position.y, food -> size.x, food -> size.y};
 	if (CheckCollisionRecs(snakeRect, foodRect) == true) {
 		printf("Collision detected\n");
+		*score += 1;
+		printf("score is %d\n", *score);
 	}
 
 	// updateSnakeSegments(snake);
@@ -72,6 +74,8 @@ int main(void) {
 	// ===== INITIALIZATION START =====
 	SetTargetFPS(60);
   	InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Snake Game");
+
+	int score = 0;
 
 	struct Snake snake = {
 		.position = {SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2},
@@ -92,7 +96,7 @@ int main(void) {
 	while (!WindowShouldClose()) {
 		// ===== UPDATE START =====
 
-		updateSnake(&snake, &food);
+		updateSnake(&snake, &food, &score);
 
 		// ===== UPDATE END =====
 
