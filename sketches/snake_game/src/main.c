@@ -8,7 +8,6 @@ const int SCREEN_HEIGHT = 1080;
 const int SNAKE_SPEED = 5;
 const int SNAKE_SEGMENT_LENGTH = 5;
 
-// todo: create and initialize the score
 // todo: create and initialize the game over message
 
 typedef struct SnakeSegment {
@@ -73,7 +72,6 @@ int main(void) {
 		.size = {20, 20},
 		.speed = {SNAKE_SPEED, SNAKE_SPEED},
 		.color = MAROON,
-		.segments = {}
 	};
 
 	struct Food food = {
@@ -96,7 +94,7 @@ int main(void) {
 
 		ClearBackground(BLACK);
 
-		// draw score
+		// DRAW SCORE START
 		int bufferSize = snprintf(NULL, 0, "Score: %d", score) + 1;
 
 		char *buffer = malloc(bufferSize * sizeof(char));
@@ -117,8 +115,24 @@ int main(void) {
 		free(buffer);
 
 		DrawRectangleV(snake.position, snake.size, snake.color);	
+		// DRAW SCORE END
+
+		// DRAW SNAKE SEGMENTS START
+		struct Snakesegment* segments = calloc(score, sizeof(struct SnakeSegment));
+		if(segments == NULL) {
+			printf("Error: realloc failed\n");
+			CloseWindow();
+		}
+		for (int i = 0; i < score; i++) {
+			snake.segments[i].position.x = snake.position.x - ((i + 1) * (snake.size.x)) - 5;
+			snake.segments[i].position.y = snake.position.y - 5;
+			snake.segments[i].size = snake.size;
+			snake.segments[i].color = WHITE;
+			DrawRectangleV(snake.segments[i].position, snake.segments[i].size, snake.segments[i].color);
+		}
+		// DRAW SNAKE SEGMENTS END
 	
-		// detect collision between the snake and the food
+		// DETECT COLLISION BETWEEN SNAKE AND FOOD START
 		Rectangle snakeRect = {snake.position.x, snake.position.y, snake.size.x, snake.size.y};
 		Rectangle foodRect = {food.position.x, food.position.y, food.size.x, food.size.y};
 		
@@ -129,14 +143,7 @@ int main(void) {
 		} else {
 			DrawRectangleV(food.position, food.size, food.color);
 		}
-
-		// draw snake segments
-		// snake.segments = realloc(snake.segments, score * sizeof(SnakeSegment));
-		// for (int i = 0; i < score; i++) {
-		// 	snake.segments[i].position = {snake.position.x - (20 * (i + 1)), snake.position.y - (20 * (i + 1))};
-		// 	snake.segments[i].size = {20, 20};
-		// 	snake.segments[i].color = MAROON;
-		// }
+		// DETECT COLLISION BETWEEN SNAKE AND FOOD END
 
 		EndDrawing();
 		// ===== DRAW END =====
