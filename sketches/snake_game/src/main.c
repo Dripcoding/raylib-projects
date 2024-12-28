@@ -46,17 +46,9 @@ void updateSnake(struct Snake* snake, enum GameScreen* currentScreen) {
 	if (IsKeyDown(KEY_DOWN)) snake -> position.y += snake -> speed.y;
 
 	// detect collision between the snake and the screen borders
-	if (snake -> position.x >= SCREEN_WIDTH) {
-		printf("oops collided with right screen border\n");
-		*currentScreen = GAMEOVER;
-	} else if (snake -> position.x <= 0) {
-		printf("oops collided with left screen border\n");
-		*currentScreen = GAMEOVER;
-	} else if (snake -> position.y >= SCREEN_HEIGHT) {
-		printf("oops collided with bottom screen border\n");
-		*currentScreen = GAMEOVER;
-	} else if (snake -> position.y <= 0) {
-		printf("oops collided with top screen border\n");
+	if (snake->position.x >= SCREEN_WIDTH || snake->position.x <= 0 ||
+		snake->position.y >= SCREEN_HEIGHT || snake->position.y <= 0) {
+		printf("oops collided with screen border\n");
 		*currentScreen = GAMEOVER;
 	}
 
@@ -90,14 +82,16 @@ int main(void) {
 		.color = GREEN,
 	};
 
-	enum GameScreen currentScreen = TITLE;
+	enum GameScreen currentScreen = GAMEPLAY;
 	// ===== INITIALIZATION END =====
 
 	// ===== GAME LOOP START =====
 	while (!WindowShouldClose()) {
 		// ===== UPDATE START =====
 
-		updateSnake(&snake, &currentScreen);
+		if (currentScreen == GAMEPLAY) {
+			updateSnake(&snake, &currentScreen);
+		}
 
 		switch(currentScreen) {
 			case TITLE:
@@ -108,6 +102,7 @@ int main(void) {
 			case GAMEPLAY:
 				break;
 			case GAMEOVER:
+				score = 0;
 				if (IsKeyPressed(KEY_ENTER)) {
 					currentScreen = GAMEPLAY;
 				}
@@ -120,6 +115,7 @@ int main(void) {
 
 		// ===== DRAW START =====
 		BeginDrawing();
+		ClearBackground(BLACK);
 
 		// DRAW CURRENT GAME SCREEN START
 		switch (currentScreen) {
@@ -130,64 +126,70 @@ int main(void) {
 				DrawRectangle(0,0,SCREEN_WIDTH, SCREEN_HEIGHT, BLUE);
 				DrawText("Game Over", 190, 200, 50, BLACK);
 				DrawText("Press [ENTER] to play again", 190, 250, 20, BLACK);
+
+				// reset snake position
+				snake.position = (Vector2){SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2};
+
 				break;
 			default:
 				break;
 		}
 		// DRAW CURRENT GAME SCREEN END
 
-		ClearBackground(BLACK);
+		if (currentScreen == 1) {
+			// DRAW SCORE START
+			int bufferSize = snprintf(NULL, 0, "Score: %d", score) + 1;
 
-		// DRAW SCORE START
-		int bufferSize = snprintf(NULL, 0, "Score: %d", score) + 1;
+			char *buffer = malloc(bufferSize * sizeof(char));
+			if (buffer == NULL) {
+				free(buffer);
+				printf("Error: malloc failed\n");
+				CloseWindow();
+			}
 
-		char *buffer = malloc(bufferSize * sizeof(char));
-		if (buffer == NULL) {
+			int result = snprintf(buffer, bufferSize, "Score: %d", score);
+			if (result >= 0) {
+				DrawText(buffer, 10, 10, 20, LIGHTGRAY);
+			} else {
+				free(buffer);
+				CloseWindow();
+			}
+
 			free(buffer);
-			printf("Error: malloc failed\n");
-			CloseWindow();
-		}
 
-		int result = snprintf(buffer, bufferSize, "Score: %d", score);
-		if (result >= 0) {
-			DrawText(buffer, 10, 10, 20, LIGHTGRAY);
-		} else {
-			free(buffer);
-			CloseWindow();
-		}
+			DrawRectangleV(snake.position, snake.size, snake.color);	
+			// DRAW SCORE END
 
-		free(buffer);
-
-		DrawRectangleV(snake.position, snake.size, snake.color);	
-		// DRAW SCORE END
-
-		// DRAW SNAKE SEGMENTS START
-		struct Snakesegment* segments = calloc(score, sizeof(struct SnakeSegment));
-		if(segments == NULL) {
-			printf("Error: realloc failed\n");
-			CloseWindow();
-		}
-		for (int i = 0; i < score; i++) {
-			snake.segments[i].position.x = snake.position.x - ((i + 1) * (snake.size.x)) - 5;
-			snake.segments[i].position.y = snake.position.y - 5;
-			snake.segments[i].size = snake.size;
-			snake.segments[i].color = WHITE;
-			DrawRectangleV(snake.segments[i].position, snake.segments[i].size, snake.segments[i].color);
-		}
-		// DRAW SNAKE SEGMENTS END
-	
-		// DETECT COLLISION BETWEEN SNAKE AND FOOD START
-		Rectangle snakeRect = {snake.position.x, snake.position.y, snake.size.x, snake.size.y};
-		Rectangle foodRect = {food.position.x, food.position.y, food.size.x, food.size.y};
+			// DRAW SNAKE SEGMENTS START
+			struct Snakesegment* segments = calloc(score, sizeof(struct SnakeSegment));
+			if(segments == NULL) {
+				printf("Error: realloc failed\n");
+				CloseWindow();
+			}
+			for (int i = 0; i < score; i++) {
+				snake.segments[i].position.x = snake.position.x - ((i + 1) * (snake.size.x)) - 5;
+				snake.segments[i].position.y = snake.position.y - 5;
+				snake.segments[i].size = snake.size;
+				snake.segments[i].color = WHITE;
+				DrawRectangleV(snake.segments[i].position, snake.segments[i].size, snake.segments[i].color);
+			}
+			// DRAW SNAKE SEGMENTS END
 		
-		if (CheckCollisionRecs(snakeRect, foodRect) == true) {
-			printf("Collision detected\n");
-			score += 1;
-			food.position = (Vector2){GetRandomValue(0, SCREEN_WIDTH), GetRandomValue(0, SCREEN_HEIGHT)};
-		} else {
-			DrawRectangleV(food.position, food.size, food.color);
+			// DETECT COLLISION BETWEEN SNAKE AND FOOD START
+			Rectangle snakeRect = {snake.position.x, snake.position.y, snake.size.x, snake.size.y};
+			Rectangle foodRect = {food.position.x, food.position.y, food.size.x, food.size.y};
+			
+			if (CheckCollisionRecs(snakeRect, foodRect) == true) {
+				printf("Collision detected\n");
+				score += 1;
+				food.position = (Vector2){GetRandomValue(0, SCREEN_WIDTH), GetRandomValue(0, SCREEN_HEIGHT)};
+			} else {
+				if (currentScreen == 1) {
+					DrawRectangleV(food.position, food.size, food.color);
+				}
+			}
+			// DETECT COLLISION BETWEEN SNAKE AND FOOD END
 		}
-		// DETECT COLLISION BETWEEN SNAKE AND FOOD END
 
 		EndDrawing();
 		// ===== DRAW END =====
