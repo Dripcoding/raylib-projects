@@ -30,7 +30,13 @@ typedef struct Food {
 	Color color;
 };
 
-void updateSnake(struct Snake* snake) {
+typedef enum GameScreen {
+	TITLE,
+	GAMEPLAY,
+	GAMEOVER
+};
+
+void updateSnake(struct Snake* snake, enum GameScreen* currentScreen) {
 	int key = GetKeyPressed();
 
 	// snake movement with arrow keys
@@ -42,12 +48,16 @@ void updateSnake(struct Snake* snake) {
 	// detect collision between the snake and the screen borders
 	if (snake -> position.x >= SCREEN_WIDTH) {
 		printf("oops collided with right screen border\n");
+		*currentScreen = GAMEOVER;
 	} else if (snake -> position.x <= 0) {
 		printf("oops collided with left screen border\n");
+		*currentScreen = GAMEOVER;
 	} else if (snake -> position.y >= SCREEN_HEIGHT) {
 		printf("oops collided with bottom screen border\n");
+		*currentScreen = GAMEOVER;
 	} else if (snake -> position.y <= 0) {
 		printf("oops collided with top screen border\n");
+		*currentScreen = GAMEOVER;
 	}
 
 	// updateSnakeSegments(snake);
@@ -79,18 +89,42 @@ int main(void) {
 		.size = {20, 20},
 		.color = GREEN,
 	};
+
+	enum GameScreen currentScreen = TITLE;
 	// ===== INITIALIZATION END =====
 
 	// ===== GAME LOOP START =====
 	while (!WindowShouldClose()) {
 		// ===== UPDATE START =====
 
-		updateSnake(&snake);
+		updateSnake(&snake, &currentScreen);
+
+		switch(currentScreen) {
+			case TITLE:
+				if (IsKeyPressed(KEY_ENTER)) {
+					currentScreen = GAMEPLAY;
+				}
+				break;
+			case GAMEPLAY:
+				break;
+			case GAMEOVER:
+				printf("Game Over screen\n");
+				break;
+			default:
+				break;
+		}
 
 		// ===== UPDATE END =====
 
 		// ===== DRAW START =====
 		BeginDrawing();
+
+		switch (currentScreen) {
+			case GAMEOVER:
+				DrawRectangle(0,0,SCREEN_WIDTH, SCREEN_HEIGHT, BLUE);
+				DrawText("Game Over", 190, 200, 50, BLACK);
+				DrawText("Press [ENTER] to play again", 190, 250, 20, BLACK);
+		}
 
 		ClearBackground(BLACK);
 
