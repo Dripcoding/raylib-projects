@@ -34,19 +34,42 @@ typedef enum GameScreen {
 	GAMEOVER
 };
 
-void updateSnake(struct Snake* snake, enum GameScreen* currentScreen) {
+typedef enum Direction {
+	UP,
+	DOWN,
+	LEFT,
+	RIGHT
+};
+
+void updateSnake(struct Snake* snake, enum GameScreen* currentScreen, enum Direction* currentDirection) {
 	int key = GetKeyPressed();
 
 	// snake movement with arrow keys
-	if (IsKeyDown(KEY_RIGHT)) snake -> position.x += snake -> speed.x;
-	if (IsKeyDown(KEY_LEFT)) snake -> position.x -= snake -> speed.x;
-	if (IsKeyDown(KEY_UP)) snake -> position.y -= snake -> speed.y;
-	if (IsKeyDown(KEY_DOWN)) snake -> position.y += snake -> speed.y;
+	if (IsKeyPressed(KEY_RIGHT)) *currentDirection = RIGHT;
+	if (IsKeyPressed(KEY_LEFT)) *currentDirection = LEFT;
+	if (IsKeyPressed(KEY_UP)) *currentDirection = UP;
+	if (IsKeyPressed(KEY_DOWN)) *currentDirection = DOWN;
+
+	switch (*currentDirection) {
+		case UP:
+			snake->position.y -= snake->speed.y;
+			break;
+		case DOWN:
+			snake->position.y += snake->speed.y;
+			break;
+		case LEFT:
+			snake->position.x -= snake->speed.x;
+			break;
+		case RIGHT:
+			snake->position.x += snake->speed.x;
+			break;
+		default:
+			break;
+	}
 
 	// detect collision between the snake and the screen borders
 	if (snake->position.x >= SCREEN_WIDTH || snake->position.x <= 0 ||
 		snake->position.y >= SCREEN_HEIGHT || snake->position.y <= 0) {
-		printf("oops collided with screen border\n");
 		*currentScreen = GAMEOVER;
 	}
 
@@ -81,6 +104,7 @@ int main(void) {
 	};
 
 	enum GameScreen currentScreen = TITLE;
+	enum Direction currentDirection = RIGHT;
 	// ===== INITIALIZATION END =====
 
 	// ===== GAME LOOP START =====
@@ -88,7 +112,7 @@ int main(void) {
 		// ===== UPDATE START =====
 
 		if (currentScreen == GAMEPLAY) {
-			updateSnake(&snake, &currentScreen);
+			updateSnake(&snake, &currentScreen, &currentDirection);
 		}
 
 		switch(currentScreen) {
