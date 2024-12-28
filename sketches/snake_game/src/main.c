@@ -108,7 +108,9 @@ int main(void) {
 			case GAMEPLAY:
 				break;
 			case GAMEOVER:
-				printf("Game Over screen\n");
+				if (IsKeyPressed(KEY_ENTER)) {
+					currentScreen = GAMEPLAY;
+				}
 				break;
 			default:
 				break;
@@ -119,12 +121,20 @@ int main(void) {
 		// ===== DRAW START =====
 		BeginDrawing();
 
+		// DRAW CURRENT GAME SCREEN START
 		switch (currentScreen) {
+			case GAMEPLAY:
+				DrawRectangle(0,0,SCREEN_WIDTH, SCREEN_HEIGHT, BLACK);
+				break;
 			case GAMEOVER:
 				DrawRectangle(0,0,SCREEN_WIDTH, SCREEN_HEIGHT, BLUE);
 				DrawText("Game Over", 190, 200, 50, BLACK);
 				DrawText("Press [ENTER] to play again", 190, 250, 20, BLACK);
+				break;
+			default:
+				break;
 		}
+		// DRAW CURRENT GAME SCREEN END
 
 		ClearBackground(BLACK);
 
