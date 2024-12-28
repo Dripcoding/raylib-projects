@@ -8,8 +8,6 @@ const int SCREEN_HEIGHT = 1080;
 const int SNAKE_SPEED = 5;
 const int SNAKE_SEGMENT_LENGTH = 5;
 
-// todo: create and initialize the game over message
-
 typedef struct SnakeSegment {
 	Vector2 position;
 	Vector2 size;
@@ -82,7 +80,7 @@ int main(void) {
 		.color = GREEN,
 	};
 
-	enum GameScreen currentScreen = GAMEPLAY;
+	enum GameScreen currentScreen = TITLE;
 	// ===== INITIALIZATION END =====
 
 	// ===== GAME LOOP START =====
@@ -119,6 +117,11 @@ int main(void) {
 
 		// DRAW CURRENT GAME SCREEN START
 		switch (currentScreen) {
+			case TITLE:	
+				DrawRectangle(0,0,SCREEN_WIDTH, SCREEN_HEIGHT, BLUE);
+				DrawText("Snake Game", 190, 200, 50, BLACK);
+				DrawText("Press [ENTER] to start", 190, 250, 20, BLACK);
+				break;
 			case GAMEPLAY:
 				DrawRectangle(0,0,SCREEN_WIDTH, SCREEN_HEIGHT, BLACK);
 				break;
