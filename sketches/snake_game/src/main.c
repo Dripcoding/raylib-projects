@@ -45,10 +45,10 @@ void updateSnake(struct Snake* snake, enum GameScreen* currentScreen, enum Direc
 	int key = GetKeyPressed();
 
 	// snake movement with arrow keys
-	if (IsKeyPressed(KEY_RIGHT)) *currentDirection = RIGHT;
-	if (IsKeyPressed(KEY_LEFT)) *currentDirection = LEFT;
-	if (IsKeyPressed(KEY_UP)) *currentDirection = UP;
-	if (IsKeyPressed(KEY_DOWN)) *currentDirection = DOWN;
+	if (IsKeyPressed(KEY_RIGHT) && *currentDirection != LEFT) *currentDirection = RIGHT;
+	else if (IsKeyPressed(KEY_LEFT) && *currentDirection != RIGHT) *currentDirection = LEFT;
+	else if (IsKeyPressed(KEY_UP) && *currentDirection != DOWN) *currentDirection = UP;
+	else if (IsKeyPressed(KEY_DOWN) && *currentDirection != UP) *currentDirection = DOWN;
 
 	switch (*currentDirection) {
 		case UP:
