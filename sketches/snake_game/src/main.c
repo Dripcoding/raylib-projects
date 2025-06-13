@@ -8,7 +8,7 @@ const int SCREEN_WIDTH = 1920;
 const int SCREEN_HEIGHT = 1080;
 const int SNAKE_SPEED = 5;
 const int SNAKE_SEGMENT_LENGTH = 5;
-const int MAX_SNAKE_LENGTH = 100;
+const int MAX_SNAKE_LENGTH = 10;
 
 typedef struct SnakeSegment {
 	Vector2 position;
@@ -21,8 +21,9 @@ typedef struct Snake {
 	Vector2 speed;
 	Vector2 size;
 	Color color;
-	struct SnakeSegment segments[10];
+	struct SnakeSegment* segments;  // Dynamic array
 	int length;
+	int capacity;        // Current allocated capacity
 	Vector2 trail[100];  // Store trail positions for wrapping
 	int trailIndex;      // Current position in trail array
 };
@@ -76,12 +77,12 @@ void updateSnake(struct Snake* snake, enum GameScreen* currentScreen, enum  Dire
 	// record the current head position to trail buffer
 	snake->trailIndex = (snake->trailIndex + 1) % 100;
 	snake->trail[snake->trailIndex] = snake->position;
-	
+
 	// Update segments to follow the trail buffer with proper spacing
 	// eg segment 0 follows 5 positions back, segment 1 follows 10 positions back, etc.
 	// This is to create a smooth movement effect
 	int segmentSpacing = 5;
-	for (int i = 0; i < snake->length && i < 10; i++) {
+	for (int i = 0; i < snake->length && i < snake->capacity; i++) {
 		int trailPos = snake->trailIndex - (i + 1) * segmentSpacing;
 		if (trailPos < 0) trailPos += 100;
 		snake->segments[i].position = snake->trail[trailPos];
@@ -99,15 +100,25 @@ int main(void) {
 	SetTargetFPS(60);
   	InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Snake Game");
 
-	int score = 0;
+	int score = 0;	
+	
 	struct Snake snake = {
 		.position = {SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2},
 		.size = {20, 20},
 		.speed = {SNAKE_SPEED, SNAKE_SPEED},
 		.color = MAROON,
 		.length = 0,
+		.capacity = MAX_SNAKE_LENGTH,  // Start with initial capacity
 		.trailIndex = 0
 	};
+	
+	// Allocate initial segments array
+	snake.segments = (struct SnakeSegment*)malloc(snake.capacity * sizeof(struct SnakeSegment));
+	if (snake.segments == NULL) {
+		printf("Error: Failed to allocate memory for snake segments\n");
+		CloseWindow();
+		return 1;
+	}
 	
 	snake.trail[0] = snake.position;
 
@@ -167,11 +178,22 @@ int main(void) {
 			case GAMEOVER:
 				DrawRectangle(0,0,SCREEN_WIDTH, SCREEN_HEIGHT, BLUE);
 				DrawText("Game Over", 190, 200, 50, BLACK);
-				DrawText("Press [ENTER] to play again", 190, 250, 20, BLACK);
-
+				DrawText("Press [ENTER] to play again", 190, 250, 20, BLACK);				
 				// reset snake position and length
 				snake.position = (Vector2){SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2};
-				snake.length = 1;
+				snake.length = 0;
+				
+				// Reset segments array size to MAX_SNAKE_LENGTH
+				if (snake.capacity != MAX_SNAKE_LENGTH) {
+					struct SnakeSegment* resetSegments = (struct SnakeSegment*)realloc(snake.segments, MAX_SNAKE_LENGTH * sizeof(struct SnakeSegment));
+					if (resetSegments != NULL) {
+						snake.segments = resetSegments;
+						snake.capacity = MAX_SNAKE_LENGTH;
+						printf("Reset segments array to capacity: %d\n", snake.capacity);
+					} else {
+						printf("Error: Failed to reset segments array\n");
+					}
+				}
 
 				break;
 			default:
@@ -212,11 +234,25 @@ int main(void) {
 		
 			// DETECT COLLISION BETWEEN SNAKE AND FOOD START
 			Rectangle snakeRect = {snake.position.x, snake.position.y, snake.size.x, snake.size.y};
-			Rectangle foodRect = {food.position.x, food.position.y, food.size.x, food.size.y};
+			Rectangle foodRect = {food.position.x, food.position.y, food.size.x, food.size.y};			
+			
 			if (CheckCollisionRecs(snakeRect, foodRect) == true) {
 				score += 1;
+				// Check if we need to expand the segments array
+				if (snake.length >= MAX_SNAKE_LENGTH - 1 && snake.capacity == MAX_SNAKE_LENGTH) {
+					int newCapacity = snake.capacity + MAX_SNAKE_LENGTH;
+					struct SnakeSegment* newSegments = (struct SnakeSegment*)realloc(snake.segments, newCapacity * sizeof(struct SnakeSegment));
+					if (newSegments != NULL) {
+						snake.segments = newSegments;
+						snake.capacity = newCapacity;
+						printf("Expanded segments array to capacity: %d\n", snake.capacity);
+					} else {
+						printf("Error: Failed to expand segments array\n");
+					}
+				}
+				
 				// Grow the snake by increasing its length
-				if (snake.length < MAX_SNAKE_LENGTH - 1) {
+				if (snake.length < snake.capacity - 1) {
 					snake.length++;
 				}
 				food.position = (Vector2){GetRandomValue(0, SCREEN_WIDTH), GetRandomValue(0, SCREEN_HEIGHT)};
@@ -231,8 +267,11 @@ int main(void) {
 		EndDrawing();
 		// ===== DRAW END =====
 	}
-
 	// ===== GAME LOOP END =====
+	
+	// Clean up allocated memory
+	free(snake.segments);
+	
 	CloseWindow();
 	
 	return 0;
