@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <math.h>
 
 const int SCREEN_WIDTH = 1920;
 const int SCREEN_HEIGHT = 1080;
@@ -20,8 +21,10 @@ typedef struct Snake {
 	Vector2 speed;
 	Vector2 size;
 	Color color;
-	struct SnakeSegment segments[10];  // Match MAX_SNAKE_LENGTH
+	struct SnakeSegment segments[10];
 	int length;
+	Vector2 trail[100];  // Store trail positions for wrapping
+	int trailIndex;      // Current position in trail array
 };
 
 typedef struct Food {
@@ -50,18 +53,9 @@ void updateSnake(struct Snake* snake, enum GameScreen* currentScreen, enum  Dire
 	if (IsKeyPressed(KEY_RIGHT) && *currentDirection != LEFT) *currentDirection = RIGHT;
 	else if (IsKeyPressed(KEY_LEFT) && *currentDirection != RIGHT) *currentDirection = LEFT;
 	else if (IsKeyPressed(KEY_UP) && *currentDirection != DOWN) *currentDirection = UP;
-	else if (IsKeyPressed(KEY_DOWN) && *currentDirection != UP) *currentDirection = DOWN;
-
-	// Update segments to follow the previous segment
-	for (int i = snake->length - 1; i > 0 && i < 10; i--) {
-		snake->segments[i].position = snake->segments[i - 1].position;
-	}
+	else if (IsKeyPressed(KEY_DOWN) && *currentDirection != UP) *currentDirection = DOWN;	
 	
-	// Update first segment to follow the head
-	if (snake->length > 0) {
-		snake->segments[0].position = snake->position;
-	}
-
+	// Move the head
 	switch (*currentDirection) {
 		case UP:
 			snake->position.y -= snake->speed.y;
@@ -78,6 +72,20 @@ void updateSnake(struct Snake* snake, enum GameScreen* currentScreen, enum  Dire
 		default:
 			break;
 	}
+	
+	// record the current head position to trail buffer
+	snake->trailIndex = (snake->trailIndex + 1) % 100;
+	snake->trail[snake->trailIndex] = snake->position;
+	
+	// Update segments to follow the trail buffer with proper spacing
+	// eg segment 0 follows 5 positions back, segment 1 follows 10 positions back, etc.
+	// This is to create a smooth movement effect
+	int segmentSpacing = 5;
+	for (int i = 0; i < snake->length && i < 10; i++) {
+		int trailPos = snake->trailIndex - (i + 1) * segmentSpacing;
+		if (trailPos < 0) trailPos += 100;
+		snake->segments[i].position = snake->trail[trailPos];
+	}
 
 	// detect collision between the snake and the screen borders
 	if (snake->position.x >= SCREEN_WIDTH || snake->position.x <= 0 ||
@@ -92,14 +100,16 @@ int main(void) {
   	InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Snake Game");
 
 	int score = 0;
-
 	struct Snake snake = {
 		.position = {SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2},
 		.size = {20, 20},
 		.speed = {SNAKE_SPEED, SNAKE_SPEED},
 		.color = MAROON,
-		.length = 1
+		.length = 0,
+		.trailIndex = 0
 	};
+	
+	snake.trail[0] = snake.position;
 
 	struct Food food = {
 		.position = {GetRandomValue(20, SCREEN_WIDTH - 20), GetRandomValue(20, SCREEN_HEIGHT - 20)},
