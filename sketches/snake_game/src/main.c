@@ -4,8 +4,9 @@
 #include <stdbool.h>
 #include <math.h>
 
-const int SCREEN_WIDTH = 1920;
-const int SCREEN_HEIGHT = 1080;
+const int SCREEN_WIDTH = 800;
+const int SCREEN_HEIGHT = 800;
+const int SCREEN_MARGIN_OFFSET = 50;
 const int SNAKE_SPEED = 5;
 const int SNAKE_SEGMENT_LENGTH = 5;
 const int MAX_SNAKE_LENGTH = 10;
@@ -121,9 +122,8 @@ int main(void) {
 	}
 	
 	snake.trail[0] = snake.position;
-
 	struct Food food = {
-		.position = {GetRandomValue(20, SCREEN_WIDTH - 20), GetRandomValue(20, SCREEN_HEIGHT - 20)},
+		.position = {GetRandomValue(SCREEN_MARGIN_OFFSET, SCREEN_WIDTH - SCREEN_MARGIN_OFFSET), GetRandomValue(SCREEN_MARGIN_OFFSET, SCREEN_HEIGHT - SCREEN_MARGIN_OFFSET)},
 		.size = {20, 20},
 		.color = GREEN,
 	};
@@ -224,6 +224,27 @@ int main(void) {
 			DrawRectangleV(snake.position, snake.size, snake.color);	
 			// DRAW SCORE END
 
+			// DRAW CAPACITY START
+			int capacityBufferSize = snprintf(NULL, 0, "Capacity: %d", snake.capacity) + 1;
+
+			char *capacityBuffer = malloc(capacityBufferSize * sizeof(char));
+			if (capacityBuffer == NULL) {
+				free(capacityBuffer);
+				printf("Error: malloc failed for capacity buffer\n");
+				CloseWindow();
+			}
+
+			int capacityResult = snprintf(capacityBuffer, capacityBufferSize, "Capacity: %d", snake.capacity);
+			if (capacityResult >= 0) {
+				DrawText(capacityBuffer, 10, 35, 20, LIGHTGRAY);  // Position below score
+			} else {
+				free(capacityBuffer);
+				CloseWindow();
+			}
+
+			free(capacityBuffer);
+			// DRAW CAPACITY END
+
 			// DRAW SNAKE SEGMENTS START
 			for (int i = 0; i < snake.length; i++) {
 				snake.segments[i].size = snake.size;
@@ -255,7 +276,7 @@ int main(void) {
 				if (snake.length < snake.capacity - 1) {
 					snake.length++;
 				}
-				food.position = (Vector2){GetRandomValue(0, SCREEN_WIDTH), GetRandomValue(0, SCREEN_HEIGHT)};
+				food.position = (Vector2){GetRandomValue(SCREEN_MARGIN_OFFSET, SCREEN_WIDTH - SCREEN_MARGIN_OFFSET), GetRandomValue(SCREEN_MARGIN_OFFSET, SCREEN_HEIGHT - SCREEN_MARGIN_OFFSET)};
 			} else {
 				if (currentScreen == 1) {
 					DrawRectangleV(food.position, food.size, food.color);
