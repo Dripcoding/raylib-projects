@@ -25,7 +25,8 @@ typedef struct Snake {
 	struct SnakeSegment* segments;  // Dynamic array
 	int length;
 	int capacity;        // Current allocated capacity
-	Vector2 trail[500];  // Increased buffer size for spacing of 5
+	Vector2* trail;      // Dynamic trail buffer
+	int trailSize;       // Current trail buffer size
 	int trailIndex;      // Current position in trail array
 };
 
@@ -74,29 +75,42 @@ void updateSnake(struct Snake* snake, enum GameScreen* currentScreen, enum  Dire
 		default:
 			break;
 	}
-
 	// record the current head position to trail buffer
-	snake->trailIndex = (snake->trailIndex + 1) % 500;  // Updated for 500-element buffer
+	snake->trailIndex = (snake->trailIndex + 1) % snake->trailSize;  // Use dynamic size
 	snake->trail[snake->trailIndex] = snake->position;
-	
+
 	// Update segments to follow the trail buffer with proper spacing
 	// eg segment 0 follows 5 positions back, segment 1 follows 10 positions back, etc.
 	// This is to create a smooth movement effect
 	int segmentSpacing = 5;  // Restored to requested spacing of 5
 	for (int i = 0; i < snake->length && i < snake->capacity; i++) {
 		int trailOffset = (i + 1) * segmentSpacing;
-		// Only position segments that have valid trail positions
-		if (trailOffset < 500) {  // Updated for 500-element buffer
-			int trailPos = snake->trailIndex - trailOffset;
-			if (trailPos < 0) trailPos += 500;  // Updated for 500-element buffer
-			snake->segments[i].position = snake->trail[trailPos];
-		} else {
-			// For segments beyond trail capacity, position them behind the last valid segment
-			if (i > 0) {
-				snake->segments[i].position = snake->segments[i-1].position;
+		// Check if we need to expand the trail buffer
+		// printf("Trail index: %d, Trail offset: %d\n", snake->trailIndex, trailOffset);
+		// printf("Trail size: %d\n", snake->trailSize);
+		if (trailOffset >= snake->trailSize) {
+			printf("Expanding trail buffer...\n");
+			int newTrailSize = snake->trailSize + 500;
+			Vector2* newTrail = (Vector2*)realloc(snake->trail, newTrailSize * sizeof(Vector2));
+			if (newTrail != NULL) {
+				// Initialize new positions with the last known position
+				for (int j = snake->trailSize; j < newTrailSize; j++) {
+					newTrail[j] = snake->position;
+				}
+				snake->trail = newTrail;
+				snake->trailSize = newTrailSize;
+				printf("Expanded trail buffer to size: %d\n", snake->trailSize);
+				printf("Trail index: %d, Trail offset: %d\n", snake->trailIndex, trailOffset);
 			} else {
-				snake->segments[i].position = snake->position;
+				printf("Error: Failed to expand trail buffer\n");
 			}
+		}
+		
+		// Position segments using the trail buffer
+		if (trailOffset < snake->trailSize) {
+			int trailPos = snake->trailIndex - trailOffset;
+			if (trailPos < 0) trailPos += snake->trailSize;  // Use dynamic size
+			snake->segments[i].position = snake->trail[trailPos];
 		}
 	}
 
@@ -121,6 +135,7 @@ int main(void) {
 		.color = MAROON,
 		.length = 0,
 		.capacity = MAX_SNAKE_LENGTH,  // Start with initial capacity
+		.trailSize = 500,              // Initial trail buffer size
 		.trailIndex = 0
 	};
 
@@ -132,10 +147,20 @@ int main(void) {
 		return 1;
 	}
 	
+	// Allocate initial trail buffer
+	snake.trail = (Vector2*)malloc(snake.trailSize * sizeof(Vector2));
+	if (snake.trail == NULL) {
+		printf("Error: Failed to allocate memory for trail buffer\n");
+		free(snake.segments);
+		CloseWindow();
+		return 1;
+	}
+	
 	// Initialize trail buffer with snake's starting position
-	for (int i = 0; i < 500; i++) {
+	for (int i = 0; i < snake.trailSize; i++) {
 		snake.trail[i] = snake.position;
 	}
+
 	struct Food food = {
 		.position = {GetRandomValue(SCREEN_MARGIN_OFFSET, SCREEN_WIDTH - SCREEN_MARGIN_OFFSET), GetRandomValue(SCREEN_MARGIN_OFFSET, SCREEN_HEIGHT - SCREEN_MARGIN_OFFSET)},
 		.size = {20, 20},
@@ -192,24 +217,8 @@ int main(void) {
 			case GAMEOVER:
 				DrawRectangle(0,0,SCREEN_WIDTH, SCREEN_HEIGHT, BLUE);
 				DrawText("Game Over", 190, 200, 50, BLACK);
-				DrawText("Press [ENTER] to play again", 190, 250, 20, BLACK);						
-				// reset snake position and length
-				snake.position = (Vector2){SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2};
-				snake.length = 0;
-				snake.trailIndex = 0;
-							
-				// Reset segments array size to MAX_SNAKE_LENGTH
-				if (snake.capacity != MAX_SNAKE_LENGTH) {
-					struct SnakeSegment* resetSegments = (struct SnakeSegment*)realloc(snake.segments, MAX_SNAKE_LENGTH * sizeof(struct SnakeSegment));
-					if (resetSegments != NULL) {
-						snake.segments = resetSegments;
-						snake.capacity = MAX_SNAKE_LENGTH;
-						printf("Reset segments array to capacity: %d\n", snake.capacity);
-					} else {
-						printf("Error: Failed to reset segments array\n");
-					}
-				}
-
+				DrawText("Press [ENTER] to play again", 190, 250, 20, BLACK);								
+				
 				break;
 			default:
 				break;
@@ -308,6 +317,7 @@ int main(void) {
 	
 	// Clean up allocated memory
 	free(snake.segments);
+	free(snake.trail);
 	
 	CloseWindow();
 	
