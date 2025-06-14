@@ -1,5 +1,4 @@
 #include "raylib.h"
-#include "stdio.h"
 
 const Color BACKGROUND_COLOR = {230, 230, 250};
 const Color RAIN_COLOR = {138, 43, 226, 255};
@@ -29,27 +28,24 @@ int main(void) {
 
   // initialize rain drops
   for (int i = 0; i < RAIN_DROP_COUNT; i++) {
-    Vector2 position = {GetRandomValue(10, SCREEN_WIDTH - 10),
-                        GetRandomValue(0, SCREEN_HEIGHT)};
+    Vector2 position = {(float)GetRandomValue(10, SCREEN_WIDTH - 10),
+                        (float)GetRandomValue(0, SCREEN_HEIGHT)};
     RainDrop rainDrop = {
-        position, RAIN_DROP_VEL, RAIN_DROP_WIDTH,
-        RAIN_DROP_HEIGHT,
-        GetRandomValue(0, 20), 
-        RAIN_COLOR
-    };
+        position,         RAIN_DROP_VEL,         RAIN_DROP_WIDTH,
+        RAIN_DROP_HEIGHT, GetRandomValue(0, 20), RAIN_COLOR};
 
     rainDrops[i] = rainDrop;
 
-    // rain drops that are further away from the viewer fall slower and are thinner
-    // rain drops that are closer to the viewer fall faster and are thicker
+    // rain drops that are further away from the viewer fall slower and are
+    // thinner rain drops that are closer to the viewer fall faster and are
+    // thicker
     if (rainDrops[i].depth > 0 && rainDrops[i].depth <= 10) {
-      rainDrops[i].vel.y = GetRandomValue(3, 5);
+      rainDrops[i].vel.y = (float)GetRandomValue(3, 5);
       rainDrops[i].width = GetRandomValue(1, 3);
       rainDrops[i].height = GetRandomValue(10, 30);
       rainDrops[i].color = MAROON;
-    }
-    else {
-      rainDrops[i].vel.y = GetRandomValue(10, 20);
+    } else {
+      rainDrops[i].vel.y = (float)GetRandomValue(10, 20);
       rainDrops[i].width = GetRandomValue(5, 7);
       rainDrops[i].height = GetRandomValue(50, 75);
     }
@@ -60,12 +56,12 @@ int main(void) {
     // ===== UPDATE =====
     for (int i = 0; i < RAIN_DROP_COUNT; i++) {
       // reset rain drop y position once it reaches the bottom of the screen
-      if (rainDrops[i].pos.y >= SCREEN_HEIGHT) {
-        rainDrops[i].pos.x = GetRandomValue(10, SCREEN_WIDTH - 10);
-        rainDrops[i].pos.y = GetRandomValue(0, SCREEN_HEIGHT / 4);
+      if (rainDrops[i].pos.y >= (float)SCREEN_HEIGHT) {
+        rainDrops[i].pos.x = (float)GetRandomValue(10, SCREEN_WIDTH - 10);
+        rainDrops[i].pos.y = (float)GetRandomValue(0, SCREEN_HEIGHT / 4);
       }
 
-      rainDrops[i].vel.y += 0.002;
+      rainDrops[i].vel.y += 0.002F;
 
       rainDrops[i].pos.y += rainDrops[i].vel.y;
     }
