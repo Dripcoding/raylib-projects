@@ -6,7 +6,7 @@
         "configurations": [
           {
             "name": "Debug",
-            "type": "cppdbg",
+            "type": "lldb",
             "request": "launch",
             "program": "${workspaceFolder}/bin/Debug/${workspaceFolderBasename}.exe",
             "args": [],
@@ -37,7 +37,7 @@
           },
           {
             "name": "Run",
-            "type": "cppdbg",
+            "type": "lldb",
             "request": "launch",
             "args": [],
             "stopAtEntry": false,

@@ -1,0 +1,7 @@
+CompileFlags:
+  Add: 
+    - -std=c99
+    - -Ibuild/external/raylib-master/src
+    - -IC:/raylib/raylib/src
+    - -DPLATFORM_DESKTOP
+    - -DGRAPHICS_API_OPENGL_33
