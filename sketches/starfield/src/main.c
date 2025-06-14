@@ -17,87 +17,92 @@ typedef struct Star {
   float y;
   float z;
   float prevZ;
-};
+} Star;
 
-struct Star* initializeStars() {
-	struct Star* stars = malloc(STAR_COUNT * sizeof(struct Star));
-	if (stars == NULL) {
-		return NULL;
-	}
-	
-	for (int i = 0; i < STAR_COUNT; i++) {
-		struct Star star = {
-			.x = GetRandomValue(-CENTER_X, CENTER_X),
-			.y = GetRandomValue(-CENTER_Y, CENTER_Y),
-			.z = GetRandomValue(0, SCREEN_WIDTH),
-			.prevZ = GetRandomValue(0, SCREEN_WIDTH)
-		};
+Star *initializeStars(void) {
+  Star *stars = malloc(STAR_COUNT * sizeof(Star));
+  if (stars == NULL) {
+    return NULL;
+  }
 
-		stars[i] = star;
-	}
-	
-	return stars;
+  for (int i = 0; i < STAR_COUNT; i++) {
+    Star star = {.x = (float)GetRandomValue((int)-CENTER_X, (int)CENTER_X),
+                 .y = (float)GetRandomValue((int)-CENTER_Y, (int)CENTER_Y),
+                 .z = (float)GetRandomValue(0, SCREEN_WIDTH),
+                 .prevZ = (float)GetRandomValue(0, SCREEN_WIDTH)};
+
+    stars[i] = star;
+  }
+
+  return stars;
 }
 
 int main(void) {
   // ===== INITIALIZATION START =====
   SetTargetFPS(60);
   InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Starfield");
-  struct Star* stars = initializeStars();
+  Star *stars = initializeStars();
 
   // ===== MAIN LOOP =====
   while (!WindowShouldClose()) {
-	// ==== UPDATE START ====
+    // ==== UPDATE START ====
+    for (int i = 0; i < STAR_COUNT; i++) {
+      // use mouse position to control z
+      stars[i].z -=
+          Remap((float)GetMouseX(), 0.0F, (float)SCREEN_WIDTH, 0.0F, 50.0F);
 
-	for (int i = 0; i < STAR_COUNT; i++) {
-		// use mouse position to control z
-		stars[i].z -= Remap(GetMouseX(), 0, SCREEN_WIDTH, 0, 50);
+      if (stars[i].z < 1) {
+        stars[i].z = (float)SCREEN_WIDTH;
+        stars[i].x = (float)GetRandomValue((int)-CENTER_X, (int)CENTER_X);
+        stars[i].y = (float)GetRandomValue((int)-CENTER_Y, (int)CENTER_Y);
+        stars[i].prevZ = stars[i].z;
+      }
+    }
+    // ==== UPDATE END ====
 
-		if (stars[i].z < 1) {
-			stars[i].z = SCREEN_WIDTH;
-			stars[i].x = GetRandomValue(-CENTER_X, CENTER_X);
-			stars[i].y = GetRandomValue(-CENTER_Y, CENTER_Y);
-			stars[i].prevZ = stars[i].z;
-		}
-	}
-	// ==== UPDATE END ====
+    // ==== DRAW START ====
+    BeginDrawing();
 
-	// ==== DRAW START ====
-	BeginDrawing();
+    ClearBackground(BLACK);
+    for (int i = 0; i < STAR_COUNT; i++) {
+      // calculate the star x,y positioned around the center of the screen and
+      // not the top,left
+      float sx = Remap(stars[i].x / stars[i].z, 0.0F, 1.0F, 0.0F,
+                       (float)SCREEN_WIDTH) +
+                 CENTER_X;
+      float sy = Remap(stars[i].y / stars[i].z, 0.0F, 1.0F, 0.0F,
+                       (float)SCREEN_HEIGHT) +
+                 CENTER_Y;
 
-	ClearBackground(BLACK);
+      // calculate the previous x,y position of the star
+      float prevX = Remap(stars[i].x / stars[i].prevZ, 0.0F, 1.0F, 0.0F,
+                          (float)SCREEN_WIDTH) +
+                    CENTER_X;
+      float prevY = Remap(stars[i].y / stars[i].prevZ, 0.0F, 1.0F, 0.0F,
+                          (float)SCREEN_HEIGHT) +
+                    CENTER_Y;
 
-	for (int i = 0; i < STAR_COUNT; i++) {
-		// calculate the star x,y positioned around the center of the screen and not the top,left
-		float sx = Remap(stars[i].x / stars[i].z, 0, 1, 0, SCREEN_WIDTH) + CENTER_X;
-		float sy = Remap(stars[i].y / stars[i].z, 0, 1, 0, SCREEN_HEIGHT) + CENTER_Y;
+      // stars should grow in size as they get closer
+      // float radius = Remap(stars[i].z, 0, SCREEN_WIDTH, MAX_RADIUS,
+      // MIN_RADIUS); DrawCircle(sx, sy, radius, WHITE); stroke should change
+      // based on z
+      float strokeWeight =
+          Remap(stars[i].z, 0.0F, (float)SCREEN_WIDTH, 5.0F, 0.0F);
 
-		// calculate the previous x,y position of the star
-		float prevX = Remap(stars[i].x / stars[i].prevZ, 0, 1, 0, SCREEN_WIDTH) + CENTER_X;
-		float prevY = Remap(stars[i].y / stars[i].prevZ, 0, 1, 0, SCREEN_HEIGHT) + CENTER_Y;
+      // draw streaking
+      Vector2 currentPos = {sx, sy};
+      Vector2 prevPos = {prevX, prevY};
+      DrawLineEx(currentPos, prevPos, strokeWeight, STAR_COLOR);
 
-		// stars should grow in size as they get closer
-		// float radius = Remap(stars[i].z, 0, SCREEN_WIDTH, MAX_RADIUS, MIN_RADIUS);
-		// DrawCircle(sx, sy, radius, WHITE);
+      // track z values
+      stars[i].prevZ = stars[i].z;
+    }
+    // ==== DRAW END ====
 
-		// stroke should change based on z
-		float strokeWeight = Remap(stars[i].z, 0, SCREEN_WIDTH, 5, 0);
-
-		// draw streaking
-		Vector2 currentPos = {sx, sy};
-		Vector2 prevPos = {prevX, prevY};
-		DrawLineEx(currentPos, prevPos, strokeWeight, STAR_COLOR);
-
-		// track z values
-		stars[i].prevZ = stars[i].z;
-	}
-	// ==== DRAW END ====
-
-	EndDrawing();
+    EndDrawing();
   }
 
   // ===== INITIALIZATION END =====
   CloseWindow();
-
   return 0;
 }
