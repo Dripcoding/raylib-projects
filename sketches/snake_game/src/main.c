@@ -191,7 +191,43 @@ int main(void) {
 				score = 0;
 				if (IsKeyPressed(KEY_ENTER)) {
 					currentScreen = GAMEPLAY;
-					snake.length = 1;
+					
+					// Reset snake to initial state
+					snake.position = (Vector2){SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2};
+					snake.length = 0;
+					snake.trailIndex = 0;
+					
+					// Reset trail buffer to initial size and reinitialize
+					if (snake.trailSize != 500) {
+						Vector2* resetTrail = (Vector2*)realloc(snake.trail, 500 * sizeof(Vector2));
+						if (resetTrail != NULL) {
+							snake.trail = resetTrail;
+							snake.trailSize = 500;
+							printf("Reset trail buffer to size: %d\n", snake.trailSize);
+						} else {
+							printf("Error: Failed to reset trail buffer\n");
+						}
+					}
+					
+					// Reinitialize trail buffer with new position
+					for (int i = 0; i < snake.trailSize; i++) {
+						snake.trail[i] = snake.position;
+					}
+					
+					// Reset segments array size to initial capacity
+					if (snake.capacity != MAX_SNAKE_LENGTH) {
+						struct SnakeSegment* resetSegments = (struct SnakeSegment*)realloc(snake.segments, MAX_SNAKE_LENGTH * sizeof(struct SnakeSegment));
+						if (resetSegments != NULL) {
+							snake.segments = resetSegments;
+							snake.capacity = MAX_SNAKE_LENGTH;
+							printf("Reset segments array to capacity: %d\n", snake.capacity);
+						} else {
+							printf("Error: Failed to reset segments array\n");
+						}
+					}
+					
+					// Reset food position
+					food.position = (Vector2){GetRandomValue(SCREEN_MARGIN_OFFSET, SCREEN_WIDTH - SCREEN_MARGIN_OFFSET), GetRandomValue(SCREEN_MARGIN_OFFSET, SCREEN_HEIGHT - SCREEN_MARGIN_OFFSET)};
 				}
 				break;
 			default:
