@@ -49,6 +49,42 @@ typedef enum Direction {
 	RIGHT
 };
 
+bool isPositionOnSnake(Vector2 position, Vector2 size, struct Snake* snake) {
+	// Check collision with snake head
+	Rectangle headRect = {snake->position.x, snake->position.y, snake->size.x, snake->size.y};
+	Rectangle posRect = {position.x, position.y, size.x, size.y};
+	
+	if (CheckCollisionRecs(headRect, posRect)) {
+		return true;
+	}
+	
+	// Check collision with snake segments
+	for (int i = 0; i < snake->length; i++) {
+		Rectangle segmentRect = {snake->segments[i].position.x, snake->segments[i].position.y, snake->size.x, snake->size.y};
+		if (CheckCollisionRecs(segmentRect, posRect)) {
+			return true;
+		}
+	}
+	
+	return false;
+}
+
+Vector2 findSafeFoodPosition(struct Snake* snake, Vector2 foodSize) {
+	Vector2 newPosition;
+	int attempts = 0;
+	const int maxAttempts = 100;
+	
+	do {
+		newPosition = (Vector2){
+			GetRandomValue(SCREEN_MARGIN_OFFSET, SCREEN_WIDTH - SCREEN_MARGIN_OFFSET),
+			GetRandomValue(SCREEN_MARGIN_OFFSET, SCREEN_HEIGHT - SCREEN_MARGIN_OFFSET)
+		};
+		attempts++;
+	} while (isPositionOnSnake(newPosition, foodSize, snake) && attempts < maxAttempts);
+	
+	return newPosition;
+}
+
 void updateSnake(struct Snake* snake, enum GameScreen* currentScreen, enum  Direction* currentDirection) {
 	int key = GetKeyPressed();
 
@@ -162,13 +198,16 @@ int main(void) {
 	}
 
 	struct Food food = {
-		.position = {GetRandomValue(SCREEN_MARGIN_OFFSET, SCREEN_WIDTH - SCREEN_MARGIN_OFFSET), GetRandomValue(SCREEN_MARGIN_OFFSET, SCREEN_HEIGHT - SCREEN_MARGIN_OFFSET)},
+		.position = {0, 0}, // Will be set after snake initialization
 		.size = {20, 20},
 		.color = GREEN,
 	};
 
 	enum GameScreen currentScreen = TITLE;
 	enum Direction currentDirection = RIGHT;
+	
+	// Set initial food position safely
+	food.position = findSafeFoodPosition(&snake, food.size);
 	// ===== INITIALIZATION END =====
 
 	// ===== GAME LOOP START =====
@@ -225,9 +264,8 @@ int main(void) {
 							printf("Error: Failed to reset segments array\n");
 						}
 					}
-					
-					// Reset food position
-					food.position = (Vector2){GetRandomValue(SCREEN_MARGIN_OFFSET, SCREEN_WIDTH - SCREEN_MARGIN_OFFSET), GetRandomValue(SCREEN_MARGIN_OFFSET, SCREEN_HEIGHT - SCREEN_MARGIN_OFFSET)};
+							// Reset food position (use safe positioning)
+					food.position = findSafeFoodPosition(&snake, food.size);
 				}
 				break;
 			default:
@@ -337,7 +375,7 @@ int main(void) {
 				
 				snake.length++;
 
-				food.position = (Vector2){GetRandomValue(SCREEN_MARGIN_OFFSET, SCREEN_WIDTH - SCREEN_MARGIN_OFFSET), GetRandomValue(SCREEN_MARGIN_OFFSET, SCREEN_HEIGHT - SCREEN_MARGIN_OFFSET)};
+				food.position = findSafeFoodPosition(&snake, food.size);
 			} else {
 				if (currentScreen == 1) {
 					DrawRectangleV(food.position, food.size, food.color);
