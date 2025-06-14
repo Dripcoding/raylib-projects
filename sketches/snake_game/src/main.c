@@ -155,6 +155,24 @@ void updateSnake(struct Snake* snake, enum GameScreen* currentScreen, enum  Dire
 		snake->position.y >= SCREEN_HEIGHT || snake->position.y <= 0) {
 		*currentScreen = GAMEOVER;
 	}
+	
+	// detect collision between the snake head and its own segments (self-collision)
+	// Only check for collision if we have segments
+	if (snake->length > 0) {
+		Rectangle headRect = {snake->position.x, snake->position.y, snake->size.x, snake->size.y};
+		for (int i = 0; i < snake->length; i++) {
+			Rectangle segmentRect = {snake->segments[i].position.x, snake->segments[i].position.y, snake->size.x, snake->size.y};
+			
+			// Skip collision check for the first few segments to avoid false positives
+			// This gives the snake time to move away from newly created segments
+			if (i < 3) continue;
+			
+			if (CheckCollisionRecs(headRect, segmentRect)) {
+				*currentScreen = GAMEOVER;
+				break;
+			}
+		}
+	}
 }
 
 int main(void) {
