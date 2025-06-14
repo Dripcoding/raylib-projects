@@ -15,7 +15,7 @@ typedef struct SnakeSegment {
   Vector2 position;
   Vector2 size;
   Color color;
-};
+} SnakeSegment;
 
 typedef struct Snake {
   Vector2 position;
@@ -28,17 +28,17 @@ typedef struct Snake {
   Vector2 *trail; // Dynamic trail buffer
   int trailSize;  // Current trail buffer size
   int trailIndex; // Current position in trail array
-};
+} Snake;
 
 typedef struct Food {
   Vector2 position;
   Vector2 size;
   Color color;
-};
+} Food;
 
-typedef enum GameScreen { TITLE, GAMEPLAY, GAMEOVER };
+typedef enum GameScreen { TITLE, GAMEPLAY, GAMEOVER } GameScreen;
 
-typedef enum Direction { UP, DOWN, LEFT, RIGHT };
+typedef enum Direction { UP, DOWN, LEFT, RIGHT } Direction;
 
 bool isPositionOnSnake(Vector2 position, Vector2 size, struct Snake *snake) {
   // Check collision with snake head
@@ -70,10 +70,10 @@ Vector2 findSafeFoodPosition(struct Snake *snake, Vector2 foodSize) {
 
   do {
     newPosition =
-        (Vector2){GetRandomValue(SCREEN_MARGIN_OFFSET,
-                                 SCREEN_WIDTH - SCREEN_MARGIN_OFFSET),
-                  GetRandomValue(SCREEN_MARGIN_OFFSET,
-                                 SCREEN_HEIGHT - SCREEN_MARGIN_OFFSET)};
+        (Vector2){(float)GetRandomValue(SCREEN_MARGIN_OFFSET,
+                                        SCREEN_WIDTH - SCREEN_MARGIN_OFFSET),
+                  (float)GetRandomValue(SCREEN_MARGIN_OFFSET,
+                                        SCREEN_HEIGHT - SCREEN_MARGIN_OFFSET)};
     attempts++;
   } while (isPositionOnSnake(newPosition, foodSize, snake) &&
            attempts < maxAttempts);
@@ -83,17 +83,17 @@ Vector2 findSafeFoodPosition(struct Snake *snake, Vector2 foodSize) {
 
 void updateSnake(struct Snake *snake, enum GameScreen *currentScreen,
                  enum Direction *currentDirection) {
-  int key = GetKeyPressed();
 
   // snake movement with arrow keys
-  if (IsKeyPressed(KEY_RIGHT) && *currentDirection != LEFT)
+  if (IsKeyPressed(KEY_RIGHT) && *currentDirection != LEFT) {
     *currentDirection = RIGHT;
-  else if (IsKeyPressed(KEY_LEFT) && *currentDirection != RIGHT)
+  } else if (IsKeyPressed(KEY_LEFT) && *currentDirection != RIGHT) {
     *currentDirection = LEFT;
-  else if (IsKeyPressed(KEY_UP) && *currentDirection != DOWN)
+  } else if (IsKeyPressed(KEY_UP) && *currentDirection != DOWN) {
     *currentDirection = UP;
-  else if (IsKeyPressed(KEY_DOWN) && *currentDirection != UP)
+  } else if (IsKeyPressed(KEY_DOWN) && *currentDirection != UP) {
     *currentDirection = DOWN;
+  }
 
   // Move the head
   switch (*currentDirection) {
@@ -149,15 +149,16 @@ void updateSnake(struct Snake *snake, enum GameScreen *currentScreen,
     // Position segments using the trail buffer
     if (trailOffset < snake->trailSize) {
       int trailPos = snake->trailIndex - trailOffset;
-      if (trailPos < 0)
+      if (trailPos < 0) {
         trailPos += snake->trailSize; // Use dynamic size
+      }
       snake->segments[i].position = snake->trail[trailPos];
     }
   }
 
   // detect collision between the snake and the screen borders
-  if (snake->position.x >= SCREEN_WIDTH || snake->position.x <= 0 ||
-      snake->position.y >= SCREEN_HEIGHT || snake->position.y <= 0) {
+  if (snake->position.x >= (float)SCREEN_WIDTH || snake->position.x <= 0 ||
+      snake->position.y >= (float)SCREEN_HEIGHT || snake->position.y <= 0) {
     *currentScreen = GAMEOVER;
   }
 
@@ -174,8 +175,9 @@ void updateSnake(struct Snake *snake, enum GameScreen *currentScreen,
       // Skip collision check for the first few segments to avoid false
       // positives This gives the snake time to move away from newly created
       // segments
-      if (i < 3)
+      if (i < 3) {
         continue;
+      }
 
       if (CheckCollisionRecs(headRect, segmentRect)) {
         *currentScreen = GAMEOVER;
@@ -192,15 +194,15 @@ int main(void) {
 
   int score = 0;
 
-  struct Snake snake = {.position = {SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2},
-                        .size = {20, 20},
-                        .speed = {SNAKE_SPEED, SNAKE_SPEED},
-                        .color = MAROON,
-                        .length = 0,
-                        .capacity =
-                            MAX_SNAKE_LENGTH, // Start with initial capacity
-                        .trailSize = 500,     // Initial trail buffer size
-                        .trailIndex = 0};
+  struct Snake snake = {
+      .position = {(float)SCREEN_WIDTH / 2.0, (float)SCREEN_HEIGHT / 2.0},
+      .size = {20, 20},
+      .speed = {(float)SNAKE_SPEED, (float)SNAKE_SPEED},
+      .color = MAROON,
+      .length = 0,
+      .capacity = MAX_SNAKE_LENGTH, // Start with initial capacity
+      .trailSize = 500,             // Initial trail buffer size
+      .trailIndex = 0};
 
   // Allocate initial segments array
   snake.segments = (struct SnakeSegment *)malloc(snake.capacity *
@@ -260,7 +262,8 @@ int main(void) {
         currentScreen = GAMEPLAY;
 
         // Reset snake to initial state
-        snake.position = (Vector2){SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2};
+        snake.position =
+            (Vector2){(float)SCREEN_WIDTH / 2.0, (float)SCREEN_HEIGHT / 2.0};
         snake.length = 0;
         snake.trailIndex = 0;
 

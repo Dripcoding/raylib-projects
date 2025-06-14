@@ -5,3 +5,41 @@ CompileFlags:
     - -IC:/raylib/raylib/src
     - -DPLATFORM_DESKTOP
     - -DGRAPHICS_API_OPENGL_33
+    - -Wall
+    - -Wextra
+    - -Wpedantic
+    - -D_DEFAULT_SOURCE
+    - -D_POSIX_C_SOURCE=200809L
+    - -DSUPPORT_FILEFORMAT_PNG
+    - -DSUPPORT_FILEFORMAT_BMP
+    - -DSUPPORT_FILEFORMAT_TGA
+    - -DSUPPORT_FILEFORMAT_JPG
+    - -DSUPPORT_FILEFORMAT_GIF
+    - -DSUPPORT_FILEFORMAT_HDR
+  Remove:
+    - -W*
+
+---
+
+Diagnostics:
+  ClangTidy:
+    Add: 
+      - readability-*
+      - performance-*
+      - bugprone-*
+    Remove:
+      - readability-magic-numbers
+      - readability-identifier-length
+  UnusedIncludes: Strict
+  MissingIncludes: Strict
+
+Index:
+  Background: Build
+  StandardLibrary: Yes
+
+Completion:
+  AllScopes: Yes
+  IncludeIneligible: No
+
+Hover:
+  ShowAKA: Yes
