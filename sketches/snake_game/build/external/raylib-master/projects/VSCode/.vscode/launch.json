@@ -6,9 +6,9 @@
         "configurations": [
           {
             "name": "Debug",
-            "type": "lldb",
+            "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/bin/Debug/${workspaceFolderBasename}.exe",
+            "program": "${workspaceFolder}/${fileBasenameNoExtension}",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
@@ -23,39 +23,35 @@
               }
             ],
             "windows": {
-              "miDebuggerPath": "gdb.exe",
+              "miDebuggerPath": "C:/raylib/w64devkit/bin/gdb.exe",
             },
             "osx": {
-              "program": "${workspaceFolder}/bin/Debug/${workspaceFolderBasename}",
               "MIMode": "lldb"
             },
             "linux": {
-              "program": "${workspaceFolder}/bin/Debug/${workspaceFolderBasename}",
               "miDebuggerPath": "/usr/bin/gdb",
             },
             "preLaunchTask": "build debug"
           },
           {
             "name": "Run",
-            "type": "lldb",
+            "type": "cppdbg",
             "request": "launch",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],
             "externalConsole": false,
-            "program": "${workspaceFolder}/bin/Release/${workspaceFolderBasename}.exe",
+            "program": "${workspaceFolder}/${fileBasenameNoExtension}",
             "MIMode": "gdb",
             "windows": {
-              "program": "${workspaceFolder}/bin/Release/${workspaceFolderBasename}.exe",
-              "miDebuggerPath": "gdb.exe"
+              "program": "${workspaceFolder}/${fileBasenameNoExtension}.exe",
+              "miDebuggerPath": "C:/raylib/w64devkit/bin/gdb.exe"
             },
             "osx": {
-              "program": "${workspaceFolder}/bin/Release/${workspaceFolderBasename}",
               "MIMode": "lldb"
             },
             "linux": {
-              "program": "${workspaceFolder}/bin/Release/${workspaceFolderBasename}",
               "miDebuggerPath": "/usr/bin/gdb"
             },
             "preLaunchTask": "build release",
