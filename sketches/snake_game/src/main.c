@@ -25,7 +25,7 @@ typedef struct Snake {
 	struct SnakeSegment* segments;  // Dynamic array
 	int length;
 	int capacity;        // Current allocated capacity
-	Vector2 trail[100];  // Store trail positions for wrapping
+	Vector2 trail[500];  // Increased buffer size for spacing of 5
 	int trailIndex;      // Current position in trail array
 };
 
@@ -74,19 +74,30 @@ void updateSnake(struct Snake* snake, enum GameScreen* currentScreen, enum  Dire
 		default:
 			break;
 	}
-	
-	// record the current head position to trail buffer
-	snake->trailIndex = (snake->trailIndex + 1) % 100;
-	snake->trail[snake->trailIndex] = snake->position;
 
+	// record the current head position to trail buffer
+	snake->trailIndex = (snake->trailIndex + 1) % 500;  // Updated for 500-element buffer
+	snake->trail[snake->trailIndex] = snake->position;
+	
 	// Update segments to follow the trail buffer with proper spacing
 	// eg segment 0 follows 5 positions back, segment 1 follows 10 positions back, etc.
 	// This is to create a smooth movement effect
-	int segmentSpacing = 5;
+	int segmentSpacing = 5;  // Restored to requested spacing of 5
 	for (int i = 0; i < snake->length && i < snake->capacity; i++) {
-		int trailPos = snake->trailIndex - (i + 1) * segmentSpacing;
-		if (trailPos < 0) trailPos += 100;
-		snake->segments[i].position = snake->trail[trailPos];
+		int trailOffset = (i + 1) * segmentSpacing;
+		// Only position segments that have valid trail positions
+		if (trailOffset < 500) {  // Updated for 500-element buffer
+			int trailPos = snake->trailIndex - trailOffset;
+			if (trailPos < 0) trailPos += 500;  // Updated for 500-element buffer
+			snake->segments[i].position = snake->trail[trailPos];
+		} else {
+			// For segments beyond trail capacity, position them behind the last valid segment
+			if (i > 0) {
+				snake->segments[i].position = snake->segments[i-1].position;
+			} else {
+				snake->segments[i].position = snake->position;
+			}
+		}
 	}
 
 	// detect collision between the snake and the screen borders
@@ -112,8 +123,8 @@ int main(void) {
 		.capacity = MAX_SNAKE_LENGTH,  // Start with initial capacity
 		.trailIndex = 0
 	};
-	
-	// Allocate initial segments array
+
+	// Allocate initial segments array	
 	snake.segments = (struct SnakeSegment*)malloc(snake.capacity * sizeof(struct SnakeSegment));
 	if (snake.segments == NULL) {
 		printf("Error: Failed to allocate memory for snake segments\n");
@@ -121,7 +132,10 @@ int main(void) {
 		return 1;
 	}
 	
-	snake.trail[0] = snake.position;
+	// Initialize trail buffer with snake's starting position
+	for (int i = 0; i < 500; i++) {
+		snake.trail[i] = snake.position;
+	}
 	struct Food food = {
 		.position = {GetRandomValue(SCREEN_MARGIN_OFFSET, SCREEN_WIDTH - SCREEN_MARGIN_OFFSET), GetRandomValue(SCREEN_MARGIN_OFFSET, SCREEN_HEIGHT - SCREEN_MARGIN_OFFSET)},
 		.size = {20, 20},
@@ -178,11 +192,12 @@ int main(void) {
 			case GAMEOVER:
 				DrawRectangle(0,0,SCREEN_WIDTH, SCREEN_HEIGHT, BLUE);
 				DrawText("Game Over", 190, 200, 50, BLACK);
-				DrawText("Press [ENTER] to play again", 190, 250, 20, BLACK);				
+				DrawText("Press [ENTER] to play again", 190, 250, 20, BLACK);						
 				// reset snake position and length
 				snake.position = (Vector2){SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2};
 				snake.length = 0;
-				
+				snake.trailIndex = 0;
+							
 				// Reset segments array size to MAX_SNAKE_LENGTH
 				if (snake.capacity != MAX_SNAKE_LENGTH) {
 					struct SnakeSegment* resetSegments = (struct SnakeSegment*)realloc(snake.segments, MAX_SNAKE_LENGTH * sizeof(struct SnakeSegment));
@@ -218,10 +233,9 @@ int main(void) {
 			} else {
 				free(buffer);
 				CloseWindow();
-			}
-
-			free(buffer);			
-			DrawRectangleV(snake.position, snake.size, snake.color);	
+			}			
+			
+			free(buffer);
 			// DRAW SCORE END
 
 			// DRAW CAPACITY START
@@ -243,7 +257,11 @@ int main(void) {
 			}
 
 			free(capacityBuffer);
-			// DRAW CAPACITY END
+			// DRAW CAPACITY END		
+			
+			// DRAW SNAKE HEAD START
+			DrawRectangleV(snake.position, snake.size, snake.color);
+			// DRAW SNAKE HEAD END
 
 			// DRAW SNAKE SEGMENTS START
 			for (int i = 0; i < snake.length; i++) {
@@ -252,15 +270,15 @@ int main(void) {
 				DrawRectangleV(snake.segments[i].position, snake.segments[i].size, snake.segments[i].color);
 			}
 			// DRAW SNAKE SEGMENTS END
-		
+
 			// DETECT COLLISION BETWEEN SNAKE AND FOOD START
 			Rectangle snakeRect = {snake.position.x, snake.position.y, snake.size.x, snake.size.y};
 			Rectangle foodRect = {food.position.x, food.position.y, food.size.x, food.size.y};			
 			
 			if (CheckCollisionRecs(snakeRect, foodRect) == true) {
-				score += 1;
+				score += 1;				
 				// Check if we need to expand the segments array
-				if (snake.length >= MAX_SNAKE_LENGTH - 1 && snake.capacity == MAX_SNAKE_LENGTH) {
+				if (snake.length >= snake.capacity - 1) {
 					int newCapacity = snake.capacity + MAX_SNAKE_LENGTH;
 					struct SnakeSegment* newSegments = (struct SnakeSegment*)realloc(snake.segments, newCapacity * sizeof(struct SnakeSegment));
 					if (newSegments != NULL) {
@@ -272,10 +290,8 @@ int main(void) {
 					}
 				}
 				
-				// Grow the snake by increasing its length
-				if (snake.length < snake.capacity - 1) {
-					snake.length++;
-				}
+				snake.length++;
+
 				food.position = (Vector2){GetRandomValue(SCREEN_MARGIN_OFFSET, SCREEN_WIDTH - SCREEN_MARGIN_OFFSET), GetRandomValue(SCREEN_MARGIN_OFFSET, SCREEN_HEIGHT - SCREEN_MARGIN_OFFSET)};
 			} else {
 				if (currentScreen == 1) {
