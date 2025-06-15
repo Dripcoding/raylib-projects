@@ -14,10 +14,13 @@ typedef struct Ship {
     float rotation;
     int sides;
     float radius;
+    float heading;
 } Ship;
 
 Ship* initializeShip(Vector2 position);
 
 void rotateShip(Ship* ship, int direction);
+
+void boostShip(Ship* ship);
 
 #endif // SHIP_H

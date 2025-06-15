@@ -1,5 +1,6 @@
 #include "raylib.h"
 #include "ship.h"
+#include <raymath.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -22,20 +23,29 @@ int main(void) {
 
   // ===== GAME LOOP START =====
   while (!WindowShouldClose()) {
-    // ===== UPDATE START =====
+
+    // ===== UPDATE SHIP START =====
+    if (ship->isBoosting) {
+      boostShip(ship);
+    }
+
+    ship->position = Vector2Add(ship->position, ship->velocity);
 
     if (IsKeyDown(KEY_RIGHT)) {
       rotateShip(ship, KEY_RIGHT);
     } else if (IsKeyDown(KEY_LEFT)) {
       rotateShip(ship, KEY_LEFT);
+    } else if (IsKeyDown(KEY_UP)) {
+      ship->isBoosting = true;
+    } else if (IsKeyReleased(KEY_UP)) {
+      ship->isBoosting = false;
     }
-
-    // ===== UPDATE END =====
+    // ===== UPDATE SHIP END =====
 
     // ===== DRAWING START =====
     BeginDrawing();
     ClearBackground(BLACK);
-    DrawPolyLines(ship->position, 3, 40, ship->rotation, ship->color);
+    DrawPolyLines(ship->position, 3, ship->radius, ship->heading, ship->color);
 
     EndDrawing();
     // ===== DRAWING END =====

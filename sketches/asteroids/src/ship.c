@@ -1,6 +1,7 @@
 #include "ship.h"
 #include <math.h>
 #include <raylib.h>
+#include <raymath.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -18,14 +19,15 @@ Ship *initializeShip(Vector2 position) {
   shipPointer->position.x = position.x;
   shipPointer->position.y = position.y;
   // init velocity
-  shipPointer->velocity.x = 1;
+  shipPointer->velocity.x = 0;
   shipPointer->velocity.y = 0;
 
   shipPointer->isBoosting = false;
   shipPointer->color = WHITE;
   shipPointer->rotation = SHIP_ROTATION_SPEED;
   shipPointer->sides = 3;
-  shipPointer->radius = 40;
+  shipPointer->radius = 30;
+  shipPointer->heading = 0;
 
   return shipPointer;
 }
@@ -33,8 +35,18 @@ Ship *initializeShip(Vector2 position) {
 void rotateShip(Ship *ship, int direction) {
 
   if (direction == KEY_RIGHT) {
-    ship->rotation += SHIP_ROTATION_SPEED;
+    ship->heading += ship->rotation;
   } else if (direction == KEY_LEFT) {
-    ship->rotation -= SHIP_ROTATION_SPEED;
+    ship->heading -= ship->rotation;
   }
+}
+
+void boostShip(Ship *ship) {
+  float thrustPower = 5.0F;
+
+  Vector2 direction = {0, -1};
+  Vector2 thrustDirection = Vector2Rotate(direction, ship->heading * DEG2RAD);
+  Vector2 boost = Vector2Scale(thrustDirection, thrustPower * GetFrameTime());
+
+  ship->velocity = Vector2Add(ship->velocity, boost);
 }
