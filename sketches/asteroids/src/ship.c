@@ -42,7 +42,7 @@ void rotateShip(Ship *ship, int direction) {
 }
 
 void boostShip(Ship *ship) {
-  float thrustPower = 5.0F;
+  float thrustPower = 2.0F;
 
   Vector2 direction = {0, -1};
   Vector2 thrustDirection = Vector2Rotate(direction, ship->heading * DEG2RAD);

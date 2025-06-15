@@ -1,3 +1,4 @@
+#include "asteroids.h"
 #include "raylib.h"
 #include "ship.h"
 #include <raymath.h>
@@ -9,12 +10,24 @@ const int SCREEN_HEIGHT = 1080;
 
 int main(void) {
   // ===== INITIALIZATION START =====
+
   SetTargetFPS(60);
   InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Asteroids");
+
+  // Initialize ship
   Ship *ship = initializeShip(
       (Vector2){(float)SCREEN_WIDTH / 2, (float)SCREEN_HEIGHT / 2});
   if (ship == NULL) {
     printf("Failed to initialize ship\n");
+    CloseWindow();
+    return -1;
+  }
+
+  // Initialize asteroids
+  Asteroid *asteroids = initializeAsteroids(SCREEN_WIDTH, SCREEN_HEIGHT);
+  if (asteroids == NULL) {
+    printf("Failed to initialize asteroids\n");
+    free(ship);
     CloseWindow();
     return -1;
   }
@@ -24,7 +37,7 @@ int main(void) {
   // ===== GAME LOOP START =====
   while (!WindowShouldClose()) {
 
-    // ===== UPDATE SHIP START =====
+    // ===== UPDATE START =====
     if (ship->isBoosting) {
       boostShip(ship);
     }
@@ -42,12 +55,19 @@ int main(void) {
     } else if (IsKeyReleased(KEY_UP)) {
       ship->isBoosting = false;
     }
-    // ===== UPDATE SHIP END =====
+
+    updateAsteroids(asteroids, SCREEN_WIDTH, SCREEN_HEIGHT);
+    // ===== UPDATE END =====
 
     // ===== DRAWING START =====
     BeginDrawing();
     ClearBackground(BLACK);
+
+    // Draw ship
     DrawPolyLines(ship->position, 3, ship->radius, ship->heading, ship->color);
+
+    // Draw asteroids
+    drawAsteroids(asteroids);
 
     EndDrawing();
     // ===== DRAWING END =====
@@ -56,6 +76,7 @@ int main(void) {
 
   // Clean up memory
   free(ship);
+  free(asteroids);
   CloseWindow();
   return 0;
 }
