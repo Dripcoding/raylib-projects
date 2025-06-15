@@ -11,10 +11,13 @@ typedef struct Ship {
     Vector2 vertexThree;
     bool isBoosting;
     Color color;
-
-
+    float rotation;
+    int sides;
+    float radius;
 } Ship;
 
-Ship* initializeShip(float x, float y);
+Ship* initializeShip(Vector2 position);
+
+void rotateShip(Ship* ship, int direction);
 
 #endif // SHIP_H
