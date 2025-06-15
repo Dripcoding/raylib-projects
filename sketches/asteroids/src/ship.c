@@ -50,3 +50,11 @@ void boostShip(Ship *ship) {
 
   ship->velocity = Vector2Add(ship->velocity, boost);
 }
+
+void wrapShip(Ship *ship, int screenWidth, int screenHeight) {
+  if (ship->position.x < 0 - ship->radius) {
+    ship->position.x = screenWidth;
+  } else if (ship->position.x > screenWidth + ship->radius) {
+    ship->position.x = 0;
+  }
+}

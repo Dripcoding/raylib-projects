@@ -23,4 +23,6 @@ void rotateShip(Ship* ship, int direction);
 
 void boostShip(Ship* ship);
 
+void wrapShip(Ship* ship, int screenWidth, int screenHeight);
+
 #endif // SHIP_H

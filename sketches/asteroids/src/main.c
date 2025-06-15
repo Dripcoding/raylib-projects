@@ -29,6 +29,8 @@ int main(void) {
       boostShip(ship);
     }
 
+    wrapShip(ship, SCREEN_WIDTH, SCREEN_HEIGHT);
+
     ship->position = Vector2Add(ship->position, ship->velocity);
 
     if (IsKeyDown(KEY_RIGHT)) {
