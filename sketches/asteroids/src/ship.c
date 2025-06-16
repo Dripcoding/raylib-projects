@@ -26,7 +26,7 @@ Ship *initializeShip(Vector2 position) {
   shipPointer->color = WHITE;
   shipPointer->rotation = SHIP_ROTATION_SPEED;
   shipPointer->sides = 3;
-  shipPointer->radius = 30;
+  shipPointer->radius = 20;
   shipPointer->heading = 0;
 
   return shipPointer;
