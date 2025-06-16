@@ -1,4 +1,5 @@
 #include "asteroids.h"
+#include "utils.h"
 #include <math.h>
 #include <raylib.h>
 #include <stdio.h>
@@ -78,24 +79,10 @@ void updateAsteroids(Asteroid *asteroids, int screenWidth, int screenHeight) {
     // Update position based on velocity
     asteroids[i].position.x += asteroids[i].velocity.x * GetFrameTime();
     asteroids[i].position.y += asteroids[i].velocity.y * GetFrameTime();
-
-    // Update rotation
     asteroids[i].rotation += asteroids[i].rotationSpeed * GetFrameTime();
 
-    // Screen wrapping
-    if (asteroids[i].position.x < -asteroids[i].radius) {
-      asteroids[i].position.x = (float)screenWidth + asteroids[i].radius;
-    } else if (asteroids[i].position.x >
-               (float)screenWidth + asteroids[i].radius) {
-      asteroids[i].position.x = -asteroids[i].radius;
-    }
-
-    if (asteroids[i].position.y < -asteroids[i].radius) {
-      asteroids[i].position.y = (float)screenHeight + asteroids[i].radius;
-    } else if (asteroids[i].position.y >
-               (float)screenHeight + asteroids[i].radius) {
-      asteroids[i].position.y = -asteroids[i].radius;
-    }
+    wrapAroundScreen(&asteroids[i].position, asteroids[i].radius, screenWidth,
+                     screenHeight);
   }
 }
 

@@ -1,4 +1,5 @@
 #include "ship.h"
+#include "utils.h"
 #include <math.h>
 #include <raylib.h>
 #include <raymath.h>
@@ -52,15 +53,5 @@ void boostShip(Ship *ship) {
 }
 
 void wrapShip(Ship *ship, int screenWidth, int screenHeight) {
-  if (ship->position.x < 0 - ship->radius) {
-    ship->position.x = (float)screenWidth;
-  } else if (ship->position.x > (float)screenWidth + ship->radius) {
-    ship->position.x = 0;
-  }
-
-  if (ship->position.y < 0 - ship->radius) {
-    ship->position.y = (float)screenHeight;
-  } else if (ship->position.y > (float)screenHeight + ship->radius) {
-    ship->position.y = 0;
-  }
+  wrapAroundScreen(&ship->position, ship->radius, screenWidth, screenHeight);
 }
