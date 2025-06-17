@@ -77,8 +77,9 @@ Asteroid *initializeAsteroids(int screenWidth, int screenHeight) {
   return asteroids;
 }
 
-void updateAsteroids(Asteroid *asteroids, int screenWidth, int screenHeight) {
-  for (int i = 0; i < MAX_ASTEROID_COUNT; i++) {
+void updateAsteroids(Asteroid *asteroids, int asteroidCount, int screenWidth,
+                     int screenHeight) {
+  for (int i = 0; i < asteroidCount; i++) {
     // Update position based on velocity
     asteroids[i].position.x += asteroids[i].velocity.x * GetFrameTime();
     asteroids[i].position.y += asteroids[i].velocity.y * GetFrameTime();
@@ -89,8 +90,13 @@ void updateAsteroids(Asteroid *asteroids, int screenWidth, int screenHeight) {
   }
 }
 
-void drawAsteroids(Asteroid *asteroids) {
-  for (int i = 0; i < MAX_ASTEROID_COUNT; i++) {
+void drawAsteroids(Asteroid *asteroids, int asteroidCount) {
+  for (int i = 0; i < asteroidCount; i++) {
+    // Skip drawing hit asteroids or asteroids with no radius
+    if (asteroids[i].hit || asteroids[i].radius <= 0) {
+      continue;
+    }
+
     // Calculate rotated vertices in world space
     Vector2 worldVertices[10];
     float rotRad = asteroids[i].rotation * DEG2RAD;
@@ -111,6 +117,15 @@ void drawAsteroids(Asteroid *asteroids) {
     for (int j = 0; j < asteroids[i].vertexCount; j++) {
       int next = (j + 1) % asteroids[i].vertexCount;
       DrawLineV(worldVertices[j], worldVertices[next], asteroids[i].color);
+    }
+
+    // Debug: Draw radius text for asteroids that can't split
+    if (asteroids[i].radius <= 30.0F) {
+      char radiusText[10];
+      sprintf(radiusText, "%.0f", asteroids[i].radius);
+      int textWidth = MeasureText(radiusText, 12);
+      DrawText(radiusText, (int)(asteroids[i].position.x - (textWidth / 2)),
+               (int)(asteroids[i].position.y - 6), 12, WHITE);
     }
   }
 }
@@ -138,4 +153,38 @@ void generateAsteroidShape(Asteroid *asteroid) {
     asteroid->vertices[i].x = cosf(angleRad) * distance;
     asteroid->vertices[i].y = sinf(angleRad) * distance;
   }
+}
+
+Asteroid *splitAsteroid(Asteroid *asteroid) {
+  Asteroid *newAsteroids = malloc(sizeof(Asteroid) * 2);
+  if (newAsteroids == NULL) {
+    return NULL;
+  }
+
+  // Create two smaller asteroids
+  Color colors[] = {RED, GREEN, BLUE, YELLOW, PURPLE, ORANGE, PINK, LIME};
+  int colorCount = sizeof(colors) / sizeof(colors[0]);
+
+  // Generate a random base angle for splitting
+  float baseAngle = (float)GetRandomValue(0, 360);
+  float speed = (float)GetRandomValue(MIN_ASTEROID_SPEED, MAX_ASTEROID_SPEED);
+
+  for (int i = 0; i < 2; i++) {
+    newAsteroids[i].position = asteroid->position;
+    newAsteroids[i].radius = asteroid->radius * 0.6F;
+    newAsteroids[i].color = colors[GetRandomValue(0, colorCount - 1)];
+    newAsteroids[i].rotation = 0.0F;
+    newAsteroids[i].rotationSpeed = (float)GetRandomValue(-30, 30);
+    newAsteroids[i].hit = false;
+
+    // Set velocities to move in opposite directions
+    float angle = baseAngle + (i * 180.0F);
+    newAsteroids[i].velocity.x = cosf(angle * DEG2RAD) * speed;
+    newAsteroids[i].velocity.y = sinf(angle * DEG2RAD) * speed;
+
+    // Generate shape for new asteroid
+    generateAsteroidShape(&newAsteroids[i]);
+  }
+
+  return newAsteroids;
 }

@@ -26,6 +26,6 @@ void boostShip(Ship* ship);
 
 void wrapShip(Ship* ship, int screenWidth, int screenHeight);
 
-bool checkShipAsteroidCollision(Ship* ship, Asteroid* asteroids);
+bool checkShipAsteroidCollision(Ship* ship, Asteroid* asteroids, int asteroidCount);
 
 #endif // SHIP_H

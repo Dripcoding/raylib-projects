@@ -33,6 +33,10 @@ int main(void) {
     return -1;
   }
 
+  // Dynamic asteroid array tracking
+  int asteroidCount = MAX_ASTEROID_COUNT;
+  int asteroidCapacity = MAX_ASTEROID_COUNT;
+
   // Initialize lasers
   Laser lasers[MAX_LASERS];
   int currentLaserCount = 0;
@@ -73,22 +77,22 @@ int main(void) {
     if (IsKeyDown(KEY_SPACE)) {
       fireLaser(lasers, ship, &currentLaserCount, &lastFireTime);
     }
-
-    updateAsteroids(asteroids, SCREEN_WIDTH, SCREEN_HEIGHT);
+    updateAsteroids(asteroids, asteroidCount, SCREEN_WIDTH, SCREEN_HEIGHT);
     updateLasers(lasers, SCREEN_WIDTH, SCREEN_HEIGHT);
 
     // Check for collision between lasers and asteroids
-    hitAsteroids += checkLaserAsteroidCollisions(lasers, asteroids);
+    hitAsteroids += checkLaserAsteroidCollisions(
+        lasers, &asteroids, &asteroidCount, &asteroidCapacity);
 
     // Check for collision between ship and asteroids
-    gameOver = checkShipAsteroidCollision(ship, asteroids);
+    gameOver = checkShipAsteroidCollision(ship, asteroids, asteroidCount);
 
-    // ===== UPDATE END =====    // ===== DRAWING START =====
+    // ===== UPDATE END =====
+
+    // ===== DRAWING START =====
     BeginDrawing();
     ClearBackground(BLACK);
-
-    // Draw game objects only if game is not over
-    drawAsteroids(asteroids);
+    drawAsteroids(asteroids, asteroidCount);
     drawLasers(lasers);
     DrawPolyLines(ship->position, 3, ship->radius, ship->heading, ship->color);
 

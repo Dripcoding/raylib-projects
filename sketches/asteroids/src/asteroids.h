@@ -26,9 +26,11 @@ Asteroid* initializeAsteroids(int screenWidth, int screenHeight);
 
 void generateAsteroidShape(Asteroid* asteroid);
 
-void updateAsteroids(Asteroid* asteroids, int screenWidth, int screenHeight);
+void updateAsteroids(Asteroid* asteroids, int asteroidCount, int screenWidth, int screenHeight);
 
-void drawAsteroids(Asteroid* asteroids);
+void drawAsteroids(Asteroid* asteroids, int asteroidCount);
+
+Asteroid* splitAsteroid(Asteroid* asteroid);
 
 Vector2 calcAsteroidPosition(int screenWidth, int screenHeight);
 

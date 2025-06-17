@@ -57,8 +57,9 @@ void wrapShip(Ship *ship, int screenWidth, int screenHeight) {
   wrapAroundScreen(&ship->position, ship->radius, screenWidth, screenHeight);
 }
 
-bool checkShipAsteroidCollision(Ship *ship, Asteroid *asteroids) {
-  for (int i = 0; i < MAX_ASTEROID_COUNT; i++) {
+bool checkShipAsteroidCollision(Ship *ship, Asteroid *asteroids,
+                                int asteroidCount) {
+  for (int i = 0; i < asteroidCount; i++) {
     if (asteroids[i].radius > 0) {
       float distance = Vector2Distance(ship->position, asteroids[i].position);
       float collisionDistance = ship->radius + asteroids[i].radius;

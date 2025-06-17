@@ -5,6 +5,7 @@
 #include <raylib.h>
 #include <raymath.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 const float LASER_SPEED = 700.0F;
 const float LASER_RADIUS = 3.0F;
@@ -44,11 +45,6 @@ void fireLaser(Laser *lasers, Ship *ship, int *laserCount,
       Vector2 laserBaseVelocity = Vector2Scale(laserDirection, LASER_SPEED);
       lasers[i].velocity = Vector2Add(laserBaseVelocity, ship->velocity);
 
-      // Debug: Print ship velocity to see if it's being applied
-      printf("Ship velocity: (%.2f, %.2f), Laser velocity: (%.2f, %.2f)\n",
-             ship->velocity.x, ship->velocity.y, lasers[i].velocity.x,
-             lasers[i].velocity.y);
-
       (*laserCount)++;
       *lastFireTime = currentTime;
       break;
@@ -79,19 +75,46 @@ void drawLasers(Laser *lasers) {
   }
 }
 
-int checkLaserAsteroidCollisions(Laser *lasers, Asteroid *asteroids) {
+int checkLaserAsteroidCollisions(Laser *lasers, Asteroid **asteroids,
+                                 int *asteroidCount, int *asteroidCapacity) {
   int hitCount = 0;
 
   for (int i = 0; i < MAX_LASERS; i++) {
     if (lasers[i].active) {
-      for (int j = 0; j < MAX_ASTEROID_COUNT; j++) {
-        if (!asteroids[j].hit && asteroids[j].radius > 0) {
+      for (int j = 0; j < *asteroidCount; j++) {
+        if (!(*asteroids)[j].hit && (*asteroids)[j].radius > 0) {
           float distance =
-              Vector2Distance(lasers[i].position, asteroids[j].position);
-          float collisionDistance = LASER_RADIUS + asteroids[j].radius;
+              Vector2Distance(lasers[i].position, (*asteroids)[j].position);
+          float collisionDistance = LASER_RADIUS + (*asteroids)[j].radius;
 
           if (distance < collisionDistance) {
-            asteroids[j].hit = true;
+            // Check if asteroid is large enough to split
+            if ((*asteroids)[j].radius > 30.0F) {
+              // Ensure we have space for 2 more asteroids
+              if (*asteroidCount + 2 > *asteroidCapacity) {
+                *asteroidCapacity = *asteroidCount + 10;
+                *asteroids =
+                    realloc(*asteroids, sizeof(Asteroid) * (*asteroidCapacity));
+                if (*asteroids == NULL) {
+                  printf("Failed to reallocate asteroid array\n");
+                  return hitCount;
+                }
+              }
+
+              // Split the asteroid
+              Asteroid *newAsteroids = splitAsteroid(&(*asteroids)[j]);
+              if (newAsteroids != NULL) {
+                // Add both new asteroids to the end
+                (*asteroids)[*asteroidCount] = newAsteroids[0];
+                (*asteroids)[*asteroidCount + 1] = newAsteroids[1];
+                *asteroidCount += 2;
+                free(newAsteroids);
+              }
+            }
+
+            // Remove the hit asteroid
+            (*asteroids)[j].hit = true;
+            (*asteroids)[j].radius = 0;
             lasers[i].active = false;
             hitCount++;
           }

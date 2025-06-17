@@ -22,6 +22,6 @@ void updateLasers(Laser* lasers, int screenWidth, int screenHeight);
 
 void drawLasers(Laser* lasers);
 
-int checkLaserAsteroidCollisions(Laser* lasers, Asteroid* asteroids);
+int checkLaserAsteroidCollisions(Laser* lasers, Asteroid** asteroids, int* asteroidCount, int* asteroidCapacity);
 
 #endif // LASER_H
