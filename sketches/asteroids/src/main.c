@@ -1,4 +1,5 @@
 #include "asteroids.h"
+#include "laser.h"
 #include "raylib.h"
 #include "ship.h"
 #include <raymath.h>
@@ -32,6 +33,12 @@ int main(void) {
     return -1;
   }
 
+  // Initialize lasers
+  Laser lasers[MAX_LASERS];
+  int currentLaserCount = 0;
+  float lastFireTime = 0.0F;
+  initializeLasers(lasers);
+
   // ===== INITIALIZATION END =====
 
   // ===== GAME LOOP START =====
@@ -52,22 +59,26 @@ int main(void) {
       rotateShip(ship, KEY_LEFT);
     } else if (IsKeyDown(KEY_UP)) {
       ship->isBoosting = true;
+      boostShip(ship);
     } else if (IsKeyReleased(KEY_UP)) {
       ship->isBoosting = false;
+    } else if (IsKeyDown(KEY_SPACE)) {
+      fireLaser(lasers, ship, &currentLaserCount, &lastFireTime);
     }
 
     updateAsteroids(asteroids, SCREEN_WIDTH, SCREEN_HEIGHT);
+    updateLasers(lasers, SCREEN_WIDTH, SCREEN_HEIGHT);
     // ===== UPDATE END =====
 
     // ===== DRAWING START =====
     BeginDrawing();
     ClearBackground(BLACK);
 
-    // Draw ship
-    DrawPolyLines(ship->position, 3, ship->radius, ship->heading, ship->color);
-
-    // Draw asteroids
     drawAsteroids(asteroids);
+
+    drawLasers(lasers);
+
+    DrawPolyLines(ship->position, 3, ship->radius, ship->heading, ship->color);
 
     EndDrawing();
     // ===== DRAWING END =====
