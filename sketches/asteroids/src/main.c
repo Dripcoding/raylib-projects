@@ -41,12 +41,13 @@ int main(void) {
 
   // Initialize game state
   bool gameOver = false;
+  int hitAsteroids = 0;
 
   // ===== INITIALIZATION END =====
 
   // ===== GAME LOOP START =====
   while (!WindowShouldClose()) {
-
+    printf("Asteroids hit: %d\n", hitAsteroids);
     // ===== UPDATE START =====
     if (ship->isBoosting) {
       boostShip(ship);
@@ -75,6 +76,9 @@ int main(void) {
 
     updateAsteroids(asteroids, SCREEN_WIDTH, SCREEN_HEIGHT);
     updateLasers(lasers, SCREEN_WIDTH, SCREEN_HEIGHT);
+
+    // Check for collision between lasers and asteroids
+    hitAsteroids += checkLaserAsteroidCollisions(lasers, asteroids);
 
     // Check for collision between ship and asteroids
     gameOver = checkShipAsteroidCollision(ship, asteroids);

@@ -67,6 +67,9 @@ Asteroid *initializeAsteroids(int screenWidth, int screenHeight) {
     asteroids[i].rotationSpeed =
         (float)GetRandomValue(-30, 30); // -30 to +30 degrees/sec
 
+    // Initialize hit status
+    asteroids[i].hit = false;
+
     // Generate unique shape for this asteroid
     generateAsteroidShape(&asteroids[i]);
   }

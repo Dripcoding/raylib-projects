@@ -1,4 +1,5 @@
 #include "laser.h"
+#include "asteroids.h"
 #include "ship.h"
 #include <math.h>
 #include <raylib.h>
@@ -76,4 +77,28 @@ void drawLasers(Laser *lasers) {
       DrawCircleV(lasers[i].position, LASER_RADIUS, lasers[i].color);
     }
   }
+}
+
+int checkLaserAsteroidCollisions(Laser *lasers, Asteroid *asteroids) {
+  int hitCount = 0;
+
+  for (int i = 0; i < MAX_LASERS; i++) {
+    if (lasers[i].active) {
+      for (int j = 0; j < MAX_ASTEROID_COUNT; j++) {
+        if (!asteroids[j].hit && asteroids[j].radius > 0) {
+          float distance =
+              Vector2Distance(lasers[i].position, asteroids[j].position);
+          float collisionDistance = LASER_RADIUS + asteroids[j].radius;
+
+          if (distance < collisionDistance) {
+            asteroids[j].hit = true;
+            lasers[i].active = false;
+            hitCount++;
+          }
+        }
+      }
+    }
+  }
+
+  return hitCount;
 }

@@ -19,6 +19,7 @@ typedef struct Asteroid {
     int vertexCount;
     float rotation;
     float rotationSpeed;
+    bool hit;
 } Asteroid;
 
 Asteroid* initializeAsteroids(int screenWidth, int screenHeight);

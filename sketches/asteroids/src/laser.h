@@ -3,6 +3,7 @@
 
 #include "raylib.h"
 #include "ship.h"
+#include "asteroids.h"
 
 #define MAX_LASERS 20
 
@@ -20,5 +21,7 @@ void fireLaser(Laser* lasers, Ship* ship, int* laserCount, float* lastFireTime);
 void updateLasers(Laser* lasers, int screenWidth, int screenHeight);
 
 void drawLasers(Laser* lasers);
+
+int checkLaserAsteroidCollisions(Laser* lasers, Asteroid* asteroids);
 
 #endif // LASER_H
