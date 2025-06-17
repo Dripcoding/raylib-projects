@@ -55,14 +55,18 @@ int main(void) {
 
     if (IsKeyDown(KEY_RIGHT)) {
       rotateShip(ship, KEY_RIGHT);
-    } else if (IsKeyDown(KEY_LEFT)) {
+    }
+    if (IsKeyDown(KEY_LEFT)) {
       rotateShip(ship, KEY_LEFT);
-    } else if (IsKeyDown(KEY_UP)) {
+    }
+    if (IsKeyDown(KEY_UP)) {
       ship->isBoosting = true;
       boostShip(ship);
-    } else if (IsKeyReleased(KEY_UP)) {
+    }
+    if (IsKeyReleased(KEY_UP)) {
       ship->isBoosting = false;
-    } else if (IsKeyDown(KEY_SPACE)) {
+    }
+    if (IsKeyDown(KEY_SPACE)) {
       fireLaser(lasers, ship, &currentLaserCount, &lastFireTime);
     }
 
