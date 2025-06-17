@@ -39,6 +39,9 @@ int main(void) {
   float lastFireTime = 0.0F;
   initializeLasers(lasers);
 
+  // Initialize game state
+  bool gameOver = false;
+
   // ===== INITIALIZATION END =====
 
   // ===== GAME LOOP START =====
@@ -72,16 +75,17 @@ int main(void) {
 
     updateAsteroids(asteroids, SCREEN_WIDTH, SCREEN_HEIGHT);
     updateLasers(lasers, SCREEN_WIDTH, SCREEN_HEIGHT);
-    // ===== UPDATE END =====
 
-    // ===== DRAWING START =====
+    // Check for collision between ship and asteroids
+    gameOver = checkShipAsteroidCollision(ship, asteroids);
+
+    // ===== UPDATE END =====    // ===== DRAWING START =====
     BeginDrawing();
     ClearBackground(BLACK);
 
+    // Draw game objects only if game is not over
     drawAsteroids(asteroids);
-
     drawLasers(lasers);
-
     DrawPolyLines(ship->position, 3, ship->radius, ship->heading, ship->color);
 
     EndDrawing();

@@ -1,4 +1,5 @@
 #include "ship.h"
+#include "asteroids.h"
 #include "utils.h"
 #include <math.h>
 #include <raylib.h>
@@ -54,4 +55,19 @@ void boostShip(Ship *ship) {
 
 void wrapShip(Ship *ship, int screenWidth, int screenHeight) {
   wrapAroundScreen(&ship->position, ship->radius, screenWidth, screenHeight);
+}
+
+bool checkShipAsteroidCollision(Ship *ship, Asteroid *asteroids) {
+  for (int i = 0; i < MAX_ASTEROID_COUNT; i++) {
+    if (asteroids[i].radius > 0) {
+      float distance = Vector2Distance(ship->position, asteroids[i].position);
+      float collisionDistance = ship->radius + asteroids[i].radius;
+
+      if (distance < collisionDistance) {
+        printf("COLLISION DETECTED! Ship hit asteroid %d\n", i);
+        return true;
+      }
+    }
+  }
+  return false;
 }

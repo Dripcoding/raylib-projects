@@ -2,6 +2,7 @@
 #define SHIP_H
 
 #include "raylib.h"
+#include "asteroids.h"
 
 typedef struct Ship {
     Vector2 position;
@@ -24,5 +25,7 @@ void rotateShip(Ship* ship, int direction);
 void boostShip(Ship* ship);
 
 void wrapShip(Ship* ship, int screenWidth, int screenHeight);
+
+bool checkShipAsteroidCollision(Ship* ship, Asteroid* asteroids);
 
 #endif // SHIP_H
