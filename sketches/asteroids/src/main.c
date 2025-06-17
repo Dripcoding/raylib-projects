@@ -92,6 +92,9 @@ int main(void) {
     drawLasers(lasers);
     DrawPolyLines(ship->position, 3, ship->radius, ship->heading, ship->color);
 
+    // Draw hit asteroids count in top left
+    DrawText(TextFormat("Score: %d", hitAsteroids), 10, 10, 20, WHITE);
+
     EndDrawing();
     // ===== DRAWING END =====
   }
