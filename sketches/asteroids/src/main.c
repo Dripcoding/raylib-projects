@@ -8,6 +8,10 @@
 
 const int SCREEN_WIDTH = 1920;
 const int SCREEN_HEIGHT = 1080;
+const int UI_MARGIN = 10;
+const int UI_FONT_SIZE = 20;
+const int GAME_OVER_FONT_SIZE = 50;
+const int INSTRUCTION_FONT_SIZE = 20;
 
 int main(void) {
   // ===== INITIALIZATION START =====
@@ -125,10 +129,9 @@ int main(void) {
       drawAsteroids(asteroids, asteroidCount);
       drawLasers(lasers);
       DrawPolyLines(ship->position, 3, ship->radius, ship->heading,
-                    ship->color);
-
-      // Draw hit asteroids count in top left
-      DrawText(TextFormat("Score: %d", hitAsteroids), 10, 10, 20, WHITE);
+                    ship->color); // Draw hit asteroids count in top left
+      DrawText(TextFormat("Score: %d", hitAsteroids), UI_MARGIN, UI_MARGIN,
+               UI_FONT_SIZE, WHITE);
     } else {
       // Game over screen
       ClearBackground(BLUE);
@@ -137,13 +140,14 @@ int main(void) {
       int screenCenterX = SCREEN_WIDTH / 2;
       int screenCenterY = SCREEN_HEIGHT / 2;
 
-      DrawText("GAME OVER", screenCenterX - 120, screenCenterY - 60, 50, WHITE);
+      DrawText("GAME OVER", screenCenterX - 120, screenCenterY - 60,
+               GAME_OVER_FONT_SIZE, WHITE);
       DrawText(TextFormat("Final Score: %d", hitAsteroids), screenCenterX - 80,
-               screenCenterY - 10, 20, WHITE);
+               screenCenterY - 10, INSTRUCTION_FONT_SIZE, WHITE);
       DrawText("Press ENTER to restart", screenCenterX - 90, screenCenterY + 20,
-               20, WHITE);
-      DrawText("Press ESC to exit", screenCenterX - 70, screenCenterY + 50, 20,
-               WHITE);
+               INSTRUCTION_FONT_SIZE, WHITE);
+      DrawText("Press ESC to exit", screenCenterX - 70, screenCenterY + 50,
+               INSTRUCTION_FONT_SIZE, WHITE);
     }
 
     EndDrawing();

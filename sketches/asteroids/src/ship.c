@@ -11,6 +11,15 @@
 const float SHIP_SIZE = 40;
 const float SHIP_ROTATION_SPEED = 2.0F;
 
+// Ship initialization constants
+const int SHIP_SIDES = 3;
+const float SHIP_RADIUS = 20.0F;
+const float INITIAL_HEADING = 0.0F;
+
+// Ship movement constants
+const float THRUST_POWER = 2.0F;
+const Vector2 THRUST_BASE_DIRECTION = {0, -1};
+
 Ship *initializeShip(Vector2 position) {
   Ship *shipPointer = malloc(sizeof(Ship));
   if (shipPointer == NULL) {
@@ -23,13 +32,12 @@ Ship *initializeShip(Vector2 position) {
   // init velocity
   shipPointer->velocity.x = 0;
   shipPointer->velocity.y = 0;
-
   shipPointer->isBoosting = false;
   shipPointer->color = WHITE;
   shipPointer->rotation = SHIP_ROTATION_SPEED;
-  shipPointer->sides = 3;
-  shipPointer->radius = 20;
-  shipPointer->heading = 0;
+  shipPointer->sides = SHIP_SIDES;
+  shipPointer->radius = SHIP_RADIUS;
+  shipPointer->heading = INITIAL_HEADING;
 
   return shipPointer;
 }
@@ -44,11 +52,9 @@ void rotateShip(Ship *ship, int direction) {
 }
 
 void boostShip(Ship *ship) {
-  float thrustPower = 2.0F;
-
-  Vector2 direction = {0, -1};
-  Vector2 thrustDirection = Vector2Rotate(direction, ship->heading * DEG2RAD);
-  Vector2 boost = Vector2Scale(thrustDirection, thrustPower * GetFrameTime());
+  Vector2 thrustDirection =
+      Vector2Rotate(THRUST_BASE_DIRECTION, ship->heading * DEG2RAD);
+  Vector2 boost = Vector2Scale(thrustDirection, THRUST_POWER * GetFrameTime());
 
   ship->velocity = Vector2Add(ship->velocity, boost);
 }

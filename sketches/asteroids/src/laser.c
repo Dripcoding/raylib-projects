@@ -11,6 +11,13 @@ const float LASER_SPEED = 700.0F;
 const float LASER_RADIUS = 3.0F;
 const float LASER_FIRE_RATE = 0.2F;
 
+// Laser spawn offset constants
+const Vector2 LASER_SPAWN_OFFSET = {-10.0F, -20.0F};
+const Vector2 LASER_BASE_DIRECTION = {0, -1}; // Base direction pointing up
+
+// Array management constants
+const int ASTEROID_CAPACITY_INCREMENT = 10;
+
 void initializeLasers(Laser *lasers) {
   for (int i = 0; i < MAX_LASERS; i++) {
     lasers[i].active = false;
@@ -28,20 +35,16 @@ void fireLaser(Laser *lasers, Ship *ship, int *laserCount,
   }
   for (int i = 0; i < MAX_LASERS; i++) {
     if (!lasers[i].active) {
-      lasers[i].active = true;
-
-      // Calculate offset relative to ship's direction
-      Vector2 baseOffset = {-10.0F, -20.0F};
+      lasers[i].active = true; // Calculate offset relative to ship's direction
       Vector2 rotatedOffset =
-          Vector2Rotate(baseOffset, (ship->heading * DEG2RAD));
+          Vector2Rotate(LASER_SPAWN_OFFSET, (ship->heading * DEG2RAD));
       Vector2 offsetPosition = Vector2Add(ship->position, rotatedOffset);
       lasers[i].position = offsetPosition;
       lasers[i].color = WHITE;
 
       // Calculate laser velocity: base laser speed + ship's velocity
-      Vector2 direction = {0, -1}; // Base direction pointing up
       Vector2 laserDirection =
-          Vector2Rotate(direction, ship->heading * DEG2RAD);
+          Vector2Rotate(LASER_BASE_DIRECTION, ship->heading * DEG2RAD);
       Vector2 laserBaseVelocity = Vector2Scale(laserDirection, LASER_SPEED);
       lasers[i].velocity = Vector2Add(laserBaseVelocity, ship->velocity);
 
@@ -87,12 +90,13 @@ int checkLaserAsteroidCollisions(Laser *lasers, Asteroid **asteroids,
               Vector2Distance(lasers[i].position, (*asteroids)[j].position);
           float collisionDistance = LASER_RADIUS + (*asteroids)[j].radius;
 
-          if (distance < collisionDistance) {
-            // Check if asteroid is large enough to split
-            if ((*asteroids)[j].radius > 30.0F) {
+          if (distance <
+              collisionDistance) { // Check if asteroid is large enough to split
+            if ((*asteroids)[j].radius > ASTEROID_SPLIT_THRESHOLD) {
               // Ensure we have space for 2 more asteroids
               if (*asteroidCount + 2 > *asteroidCapacity) {
-                *asteroidCapacity = *asteroidCount + 10;
+                *asteroidCapacity =
+                    *asteroidCount + ASTEROID_CAPACITY_INCREMENT;
                 *asteroids =
                     realloc(*asteroids, sizeof(Asteroid) * (*asteroidCapacity));
                 if (*asteroids == NULL) {
