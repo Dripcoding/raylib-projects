@@ -24,6 +24,8 @@ void rotateShip(Ship* ship, int direction);
 
 void boostShip(Ship* ship);
 
+void drawShip(Ship* ship);
+
 void wrapShip(Ship* ship, int screenWidth, int screenHeight);
 
 bool checkShipAsteroidCollision(Ship* ship, Asteroid* asteroids, int asteroidCount);

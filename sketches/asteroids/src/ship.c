@@ -78,3 +78,38 @@ bool checkShipAsteroidCollision(Ship *ship, Asteroid *asteroids,
   }
   return false;
 }
+
+void drawShip(Ship *ship) {
+  // Draw custom triangle aligned with heading
+  Vector2 baseDirection = {0, -1}; // Points up
+  Vector2 shipDirection = Vector2Rotate(baseDirection, ship->heading * DEG2RAD);
+
+  // Calculate triangle vertices
+  Vector2 topVertex =
+      Vector2Add(ship->position, Vector2Scale(shipDirection, ship->radius));
+  Vector2 leftVertex = Vector2Add(
+      ship->position,
+      Vector2Rotate((Vector2){-ship->radius * 0.6F, ship->radius * 0.4F},
+                    ship->heading * DEG2RAD));
+  Vector2 rightVertex = Vector2Add(
+      ship->position,
+      Vector2Rotate((Vector2){ship->radius * 0.6F, ship->radius * 0.4F},
+                    ship->heading * DEG2RAD));
+
+  // Draw triangle outline
+  DrawLineV(topVertex, leftVertex, ship->color);
+  DrawLineV(leftVertex, rightVertex, ship->color);
+  DrawLineV(rightVertex, topVertex, ship->color);
+
+  // DEBUG Draw direction vector for visual reference
+  // Vector2 vectorEnd =
+  //     Vector2Add(ship->position, Vector2Scale(shipDirection, 50.0F));
+  // DrawLineV(ship->position, vectorEnd, GREEN);
+
+  // DEBUG Draw arrowhead for the direction vector
+  // Vector2 arrowLeft = Vector2Rotate((Vector2){-5, 10}, ship->heading *
+  // DEG2RAD); Vector2 arrowRight = Vector2Rotate((Vector2){5, 10},
+  // ship->heading * DEG2RAD); DrawLineV(vectorEnd, Vector2Add(vectorEnd,
+  // arrowLeft), GREEN); DrawLineV(vectorEnd, Vector2Add(vectorEnd, arrowRight),
+  // GREEN);
+}
