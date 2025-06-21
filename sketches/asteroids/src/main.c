@@ -128,8 +128,10 @@ int main(void) {
       ClearBackground(BLACK);
       drawAsteroids(asteroids, asteroidCount);
       drawLasers(lasers);
-      DrawPolyLines(ship->position, 3, ship->radius, ship->heading,
-                    ship->color); // Draw hit asteroids count in top left
+
+      // Draw ship with direction vector
+      drawShip(ship);
+
       DrawText(TextFormat("Score: %d", hitAsteroids), UI_MARGIN, UI_MARGIN,
                UI_FONT_SIZE, WHITE);
     } else {

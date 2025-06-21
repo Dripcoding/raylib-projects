@@ -40,9 +40,9 @@ void fireLaser(Laser *lasers, Ship *ship, int *laserCount,
           Vector2Rotate(LASER_SPAWN_OFFSET, (ship->heading * DEG2RAD));
       Vector2 offsetPosition = Vector2Add(ship->position, rotatedOffset);
       lasers[i].position = offsetPosition;
-      lasers[i].color = WHITE;
+      lasers[i].color =
+          WHITE; // Calculate laser velocity: base laser speed + ship's velocity
 
-      // Calculate laser velocity: base laser speed + ship's velocity
       Vector2 laserDirection =
           Vector2Rotate(LASER_BASE_DIRECTION, ship->heading * DEG2RAD);
       Vector2 laserBaseVelocity = Vector2Scale(laserDirection, LASER_SPEED);
