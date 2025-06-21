@@ -11,8 +11,7 @@ const float LASER_SPEED = 700.0F;
 const float LASER_RADIUS = 3.0F;
 const float LASER_FIRE_RATE = 0.2F;
 
-// Laser spawn offset constants
-const Vector2 LASER_SPAWN_OFFSET = {-10.0F, -20.0F};
+// Laser direction constant
 const Vector2 LASER_BASE_DIRECTION = {0, -1}; // Base direction pointing up
 
 // Array management constants
@@ -35,17 +34,18 @@ void fireLaser(Laser *lasers, Ship *ship, int *laserCount,
   }
   for (int i = 0; i < MAX_LASERS; i++) {
     if (!lasers[i].active) {
-      lasers[i].active = true; // Calculate offset relative to ship's direction
-      Vector2 rotatedOffset =
-          Vector2Rotate(LASER_SPAWN_OFFSET, (ship->heading * DEG2RAD));
-      Vector2 offsetPosition = Vector2Add(ship->position, rotatedOffset);
-      lasers[i].position = offsetPosition;
-      lasers[i].color =
-          WHITE; // Calculate laser velocity: base laser speed + ship's velocity
+      lasers[i].active = true;
 
-      Vector2 laserDirection =
+      // Calculate precise spawn position at the ship's front tip
+      Vector2 shipDirection =
           Vector2Rotate(LASER_BASE_DIRECTION, ship->heading * DEG2RAD);
-      Vector2 laserBaseVelocity = Vector2Scale(laserDirection, LASER_SPEED);
+      Vector2 frontTipPosition =
+          Vector2Add(ship->position, Vector2Scale(shipDirection, ship->radius));
+      lasers[i].position = frontTipPosition;
+      lasers[i].color = WHITE;
+
+      // Calculate laser velocity: base laser speed + ship's velocity
+      Vector2 laserBaseVelocity = Vector2Scale(shipDirection, LASER_SPEED);
       lasers[i].velocity = Vector2Add(laserBaseVelocity, ship->velocity);
 
       (*laserCount)++;
