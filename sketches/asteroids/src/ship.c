@@ -101,14 +101,15 @@ void drawShip(Ship *ship) {
   DrawLineV(leftVertex, rightVertex, ship->color);
   DrawLineV(rightVertex, topVertex, ship->color);
 
-  // Draw direction vector for visual reference
-  Vector2 vectorEnd =
-      Vector2Add(ship->position, Vector2Scale(shipDirection, 50.0F));
-  DrawLineV(ship->position, vectorEnd, GREEN);
+  // DEBUG Draw direction vector for visual reference
+  // Vector2 vectorEnd =
+  //     Vector2Add(ship->position, Vector2Scale(shipDirection, 50.0F));
+  // DrawLineV(ship->position, vectorEnd, GREEN);
 
-  // Draw arrowhead for the direction vector
-  Vector2 arrowLeft = Vector2Rotate((Vector2){-5, 10}, ship->heading * DEG2RAD);
-  Vector2 arrowRight = Vector2Rotate((Vector2){5, 10}, ship->heading * DEG2RAD);
-  DrawLineV(vectorEnd, Vector2Add(vectorEnd, arrowLeft), GREEN);
-  DrawLineV(vectorEnd, Vector2Add(vectorEnd, arrowRight), GREEN);
+  // DEBUG Draw arrowhead for the direction vector
+  // Vector2 arrowLeft = Vector2Rotate((Vector2){-5, 10}, ship->heading *
+  // DEG2RAD); Vector2 arrowRight = Vector2Rotate((Vector2){5, 10},
+  // ship->heading * DEG2RAD); DrawLineV(vectorEnd, Vector2Add(vectorEnd,
+  // arrowLeft), GREEN); DrawLineV(vectorEnd, Vector2Add(vectorEnd, arrowRight),
+  // GREEN);
 }
