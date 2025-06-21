@@ -122,14 +122,17 @@ void drawAsteroids(Asteroid *asteroids, int asteroidCount) {
     for (int j = 0; j < asteroids[i].vertexCount; j++) {
       int next = (j + 1) % asteroids[i].vertexCount;
       DrawLineV(worldVertices[j], worldVertices[next], asteroids[i].color);
-    } // Debug: Draw radius text for asteroids that can't split
-    if (asteroids[i].radius <= ASTEROID_SPLIT_THRESHOLD) {
-      char radiusText[10];
-      sprintf(radiusText, "%.0f", asteroids[i].radius);
-      int textWidth = MeasureText(radiusText, DEBUG_FONT_SIZE);
-      DrawText(radiusText, (int)(asteroids[i].position.x - (textWidth / 2.0F)),
-               (int)(asteroids[i].position.y - 6), DEBUG_FONT_SIZE, WHITE);
     }
+
+    // Debug: Draw radius text for asteroids that can't split
+    // if (asteroids[i].radius <= ASTEROID_SPLIT_THRESHOLD) {
+    //   char radiusText[10];
+    //   sprintf(radiusText, "%.0f", asteroids[i].radius);
+    //   int textWidth = MeasureText(radiusText, DEBUG_FONT_SIZE);
+    //   DrawText(radiusText, (int)(asteroids[i].position.x - (textWidth
+    //   / 2.0F)),
+    //            (int)(asteroids[i].position.y - 6), DEBUG_FONT_SIZE, WHITE);
+    // }
   }
 }
 
